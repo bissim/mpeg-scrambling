@@ -1,0 +1,185 @@
+cc -O -c mpeg.c 
+In file included from globals.h:188:0,
+                 from mpeg.c:39:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+mpeg.c: In function 'MpegEncodeSequence':
+mpeg.c:576:3: warning: implicit declaration of function 'MakeFS' [-Wimplicit-function-declaration]
+   MakeFS(READ_IOB);    /* Make our frame stores */
+   ^
+mpeg.c: In function 'ExecuteQuantization':
+mpeg.c:783:7: warning: implicit declaration of function 'Execute' [-Wimplicit-function-declaration]
+       Execute(1);
+       ^
+mpeg.c: In function 'MpegWriteMType':
+mpeg.c:1397:7: warning: implicit declaration of function 'WriteStuff' [-Wimplicit-function-declaration]
+       WriteStuff();
+       ^
+cc -O -c codec.c 
+In file included from globals.h:188:0,
+                 from codec.c:31:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+codec.c: In function 'EncodeAC':
+codec.c:113:15: warning: implicit declaration of function 'abs' [-Wimplicit-function-declaration]
+        code = abs(l) | (r << 8);
+               ^
+codec.c:36:15: warning: implicit declaration of function 'mputb' [-Wimplicit-function-declaration]
+ #define fputb mputb
+               ^
+codec.c:127:16: note: in expansion of macro 'fputb'
+     if (l < 0){fputb(1);}
+                ^
+cc -O -c huffman.c 
+In file included from globals.h:188:0,
+                 from huffman.c:33:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+cc -O -c io.c 
+In file included from globals.h:188:0,
+                 from io.c:33:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+cc -O -c chendct.c 
+cc -O -c lexer.c 
+lexer.c:265:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ yylex(){
+ ^
+lexer.c: In function 'yylex':
+lexer.c:267:15: warning: implicit declaration of function 'yylook' [-Wimplicit-function-declaration]
+ while((nstr = yylook()) >= 0)
+               ^
+lexer.c: In function 'initparser':
+lexer.c:499:7: warning: implicit declaration of function 'equname' [-Wimplicit-function-declaration]
+       equname(i,*sptr);
+       ^
+In file included from globals.h:188:0,
+                 from lexer.c:511:
+prototypes.h: At top level:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+lexer.c:638:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ equname(number,name)
+ ^
+lexer.c:2099:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ yylook(){
+ ^
+lexer.c: In function 'yylook':
+lexer.c:2143:9: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+    if ( (int)yyt > (int)yycrank){
+         ^
+lexer.c:2143:20: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+    if ( (int)yyt > (int)yycrank){
+                    ^
+lexer.c:2153:12: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+    else if((int)yyt < (int)yycrank) {  /* r < yycrank */
+            ^
+lexer.c:2153:23: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+    else if((int)yyt < (int)yycrank) {  /* r < yycrank */
+                       ^
+lexer.c:2211:12: warning: implicit declaration of function 'yyback' [-Wimplicit-function-declaration]
+      while(yyback((*lsp)->yystops,-*yyfnd) != 1 && lsp > yylstate){
+            ^
+lexer.c: At top level:
+lexer.c:2245:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ yyback(p, m)
+ ^
+lexer.c: In function 'yyback':
+lexer.c:2245:1: warning: type of 'm' defaults to 'int' [-Wimplicit-int]
+lexer.c: At top level:
+lexer.c:2257:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ yyinput(){
+ ^
+lexer.c:2260:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ yyoutput(c)
+ ^
+lexer.c:2264:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ yyunput(c)
+ ^
+cc -O -c marker.c 
+In file included from globals.h:188:0,
+                 from marker.c:31:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+marker.c: In function 'WriteVSHeader':
+marker.c:212:3: warning: implicit declaration of function 'mputb' [-Wimplicit-function-declaration]
+   mputb(1);             /* Reserved bit */
+   ^
+marker.c: At top level:
+marker.c:618:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ WriteStuff()
+ ^
+cc -O -c me.c 
+In file included from globals.h:188:0,
+                 from me.c:30:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+cc -O -c mem.c 
+mem.c:37:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+mem.c:38:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+mem.c:73:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ ClearMem(m1)
+ ^
+mem.c:87:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ SetMem(value,m1)
+ ^
+cc -O -c stat.c 
+In file included from globals.h:188:0,
+                 from stat.c:30:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+cc -O -c stream.c 
+In file included from globals.h:188:0,
+                 from stream.c:32:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+cc -O -c transform.c 
+In file included from globals.h:188:0,
+                 from transform.c:30:
+prototypes.h:130:8: warning: type defaults to 'int' in declaration of 'ClearMem' [-Wimplicit-int]
+ extern ClearMem();
+        ^
+prototypes.h:131:8: warning: type defaults to 'int' in declaration of 'SetMem' [-Wimplicit-int]
+ extern SetMem();
+        ^
+cc -O mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o -lm -o mpeg

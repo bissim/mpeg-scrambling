@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name="bin">
+        <df name="temp">
+        </df>
+      </df>
+      <df name="ffmpeg">
+      </df>
+      <df name="lib">
+        <df name="matrix2jpeg">
+          <df name="html">
+          </df>
+          <in>matrix2jpeg.c</in>
+          <in>matrix2jpeg.h</in>
+          <in>matrix2jpeg_api.c</in>
+          <in>matrix2jpeg_api.h</in>
+          <in>matrix2jpeg_emxutil.c</in>
+          <in>matrix2jpeg_emxutil.h</in>
+          <in>matrix2jpeg_initialize.c</in>
+          <in>matrix2jpeg_initialize.h</in>
+          <in>matrix2jpeg_mex.c</in>
+          <in>matrix2jpeg_terminate.c</in>
+          <in>matrix2jpeg_terminate.h</in>
+          <in>matrix2jpeg_types.h</in>
+          <in>rt_nonfinite.h</in>
+          <in>rtwtypes.h</in>
+        </df>
+      </df>
+      <df name="MATRIX">
+      </df>
+      <df name="testSet">
+        <df name="original">
+        </df>
+        <df name="scrambled">
+        </df>
+        <df name="yuv">
+          <df name="cena">
+          </df>
+          <df name="reporter">
+          </df>
+          <df name="s">
+          </df>
+          <df name="scuola">
+          </df>
+        </df>
+      </df>
+      <df name="xml">
+      </df>
+      <in>._cJSON.c</in>
+      <in>._cJSON.h</in>
+      <in>cJSON.c</in>
+      <in>cJSON.h</in>
+      <in>chendct.c</in>
+      <in>codec.c</in>
+      <in>csize.h</in>
+      <in>ctables.h</in>
+      <in>dct.h</in>
+      <in>engine.h</in>
+      <in>globals.h</in>
+      <in>huffman.c</in>
+      <in>huffman.h</in>
+      <in>io.c</in>
+      <in>lexer.c</in>
+      <in>marker.c</in>
+      <in>marker.h</in>
+      <in>matlab_engine_jpeg.c</in>
+      <in>matlab_engine_jpeg.h</in>
+      <in>me.c</in>
+      <in>mem.c</in>
+      <in>mem.h</in>
+      <in>mpeg.c</in>
+      <in>mpeg.h</in>
+      <in>param.h</in>
+      <in>prototypes.h</in>
+      <in>qtables.h</in>
+      <in>scrambling.c</in>
+      <in>scrambling.h</in>
+      <in>size.h</in>
+      <in>stat.c</in>
+      <in>stat.h</in>
+      <in>stream.c</in>
+      <in>stream.h</in>
+      <in>system.h</in>
+      <in>tables.h</in>
+      <in>transform.c</in>
+      <in>watermark.c</in>
+      <in>watermark.h</in>
+    </df>
+  </logicalFolder>
+  <projectmakefile>makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>4</platform>
+      </toolsSet>
+      <compile>
+        <compiledirpicklist>
+          <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
+        </compiledirpicklist>
+        <compiledir>${AUTO_FOLDER}</compiledir>
+        <compilecommandpicklist>
+          <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
+        </compilecommandpicklist>
+        <compilecommand>${AUTO_COMPILE}</compilecommand>
+      </compile>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+            <option name="debug_command" value="mpeg"/>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>false</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>

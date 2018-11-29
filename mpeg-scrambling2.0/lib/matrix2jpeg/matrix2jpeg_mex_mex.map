@@ -1,0 +1,10 @@
+MEX {
+	global:
+		mexFunction;
+		emlrtMexFcnProperties;
+		matrix2jpeg;
+		matrix2jpeg_initialize;
+		matrix2jpeg_terminate;
+	local:
+		*;
+};
