@@ -3,12 +3,18 @@
 # There should be no changes for most UNIX compilers.
 ###########################################################
 
-MFLAGS = -O
+# edit following line to specify proper OS compiler
+# (gcc for Windows, cc for Unix and GNU\Linux)
+CC = gcc
+
+# w ang g parameters have been introduced for debug purposes
+# remove them in production environment
+MFLAGS = -w -O -g
 DEFS = system.h globals.h marker.h watermark.h scrambling.h cJSON.h
-BASELINE =  mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
+BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
 
 .c.o:
-	cc $(MFLAGS) -c $*.c 
+	$(CC) $(MFLAGS) -c $*.c 
 
 .c.ln:
 	lint -c $*.c 
@@ -19,7 +25,7 @@ clean:
 	rm *.o mpeg
 
 mpeg: $(BASELINE)
-	cc $(MFLAGS) $(BASELINE) -lm -o mpeg
+	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
 
 mpeg.o: mpeg.c $(DEFS) mpeg.h
 codec.o: codec.c $(DEFS)
@@ -28,9 +34,9 @@ huffman.o: huffman.c $(DEFS) huffman.h
 io.o: io.c $(DEFS)
 chendct.o: chendct.c $(DEFS)
 lexer.o:lexer.c
-mem.o: mem.c 
-me.o: me.c 
-stat.o: stat.c 
+mem.o: mem.c
+me.o: me.c
+stat.o: stat.c
 stream.o: stream.c $(DEFS)
 transform.o: transform.c $(DEFS) dct.h
 watermark.o: watermark.c $(DEFS) watermark.h
@@ -39,7 +45,7 @@ cJSON.o: cJSON.c $(DEFS) cJSON.h
 
 
 lcheck: mpeg.ln codec.ln marker.ln huffman.ln io.ln chendct.ln lexer.ln mem.ln me.ln stat.ln stream.ln transform.ln
-	lint  mpeg.ln codec.ln marker.ln huffman.ln io.ln chendct.ln lexer.ln mem.ln me.ln stat.ln stream.ln transform.ln
+	lint mpeg.ln codec.ln marker.ln huffman.ln io.ln chendct.ln lexer.ln mem.ln me.ln stat.ln stream.ln transform.ln
 
 
 #
@@ -60,7 +66,7 @@ lcheck: mpeg.ln codec.ln marker.ln huffman.ln io.ln chendct.ln lexer.ln mem.ln m
 #htable:htable.lex
 #	lex htable.lex
 #	mv lex.yy.c htable.c
-#	cc htable.c -o htable -ll
+#	$(CC) htable.c -o htable -ll
 #
 #
 #  Caution: Sometimes -ll is required.
