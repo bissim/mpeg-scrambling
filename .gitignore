@@ -1,0 +1,9 @@
+**/nbproject/**
+**/.vscode/**
+**/.settings/**
+
+/mpeg-scrambling/bin
+
+/Scrambling1.1/bin
+/Scrambling1.1/manifest.mf
+/Scrambling1.1/nbbuild.xml
