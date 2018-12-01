@@ -51,7 +51,7 @@
 #include <math.h>
 #include <sys/time.h>
 #include "globals.h"
-#include "qtables.h";
+#include "qtables.h"
 #include "mpeg.h"
 #include "watermark.h"
 #include "scrambling.h"
@@ -585,11 +585,11 @@ char **argv;
         FrameGroup=1;
     }
     
-    if (Oracle)
-    {
-        initparser();
-        parser();
-    }
+    // if (Oracle)
+    // {
+    //     initparser();
+    //     parser();
+    // }
     if(!(GetFlag(CImage->MpegMode,M_DECODER))) /* se non ha -d, cioè encoder, allora entra */
     {
         if ((!HorizontalSize)||(!VerticalSize)) /* Unspecified hor, ver */
@@ -869,22 +869,22 @@ int *Qptr;
         *Qptr = *Qptr/2;
     if (*Qptr<1) *Qptr=1;
     if (*Qptr>31) *Qptr=31;
-    if (Oracle)  /* If oracle, then consult oracle */
-    {
-        Memory[L_SQUANT] = (double) SQuant;
-        Memory[L_MQUANT] = (double) MQuant;
-        Memory[L_PTYPE] = (double) PType;
-        Memory[L_MTYPE] = (double) MType;
-        Memory[L_RATE] = (double) Rate;
-        Memory[L_BUFFERSIZE] = (double) BufferSize;
-        Memory[L_BUFFERCONTENTS] = (double) CurrentSize;
-        Memory[L_QDFACT] = (double) QDFact;
-        Memory[L_QOFFS] = (double) QOffs;
-        Execute(1);
-        SQuant = (int)  Memory[L_SQUANT];  /* Possibly check Mquant */
-        if (SQuant<1) SQuant=1;
-        if (SQuant>31) SQuant=31;
-    }
+    // if (Oracle)  /* If oracle, then consult oracle */
+    // {
+    //     Memory[L_SQUANT] = (double) SQuant;
+    //     Memory[L_MQUANT] = (double) MQuant;
+    //     Memory[L_PTYPE] = (double) PType;
+    //     Memory[L_MTYPE] = (double) MType;
+    //     Memory[L_RATE] = (double) Rate;
+    //     Memory[L_BUFFERSIZE] = (double) BufferSize;
+    //     Memory[L_BUFFERCONTENTS] = (double) CurrentSize;
+    //     Memory[L_QDFACT] = (double) QDFact;
+    //     Memory[L_QOFFS] = (double) QOffs;
+    //     Execute(1);
+    //     SQuant = (int)  Memory[L_SQUANT];  /* Possibly check Mquant */
+    //     if (SQuant<1) SQuant=1;
+    //     if (SQuant>31) SQuant=31;
+    // }
     printf("BufferContents: %d  New SQuant: %d\n",CurrentSize,*Qptr);
 }
 
@@ -1462,29 +1462,29 @@ void MpegFindMType()
             printf("Unknown type: %d\n",PType);
             break;
     }
-    if (Oracle)
-    {
-        Memory[L_SQUANT] = (double) SQuant;
-        Memory[L_MQUANT] = (double) MQuant;
-        Memory[L_PTYPE] = (double) PType;
-        Memory[L_MTYPE] = (double) MType;
-        Memory[L_BD] = (double) xValue;
-        Memory[L_FDBD] = (double) fyValue;
-        Memory[L_BDBD] = (double) byValue;
-        Memory[L_IDBD] = (double) iyValue;
-        Memory[L_VAROR] = (double) orVAR;
-        Memory[L_FVAR] = (double) fyVAR;
-        Memory[L_BVAR] = (double) byVAR; 
-        Memory[L_IVAR] = (double) iyVAR;
-        Memory[L_DVAR] = (double) xVAR;
-        Memory[L_RATE] = (double) Rate;
-        Memory[L_BUFFERSIZE] = (double) BufferSize;
-        Memory[L_BUFFERCONTENTS] = (double) BufferContents();
-        Memory[L_QDFACT] = (double) QDFact;
-        Memory[L_QOFFS] = (double) QOffs;
-        Execute(0);
-        MType = (int) Memory[L_MTYPE];
-    }
+    // if (Oracle)
+    // {
+    //     Memory[L_SQUANT] = (double) SQuant;
+    //     Memory[L_MQUANT] = (double) MQuant;
+    //     Memory[L_PTYPE] = (double) PType;
+    //     Memory[L_MTYPE] = (double) MType;
+    //     Memory[L_BD] = (double) xValue;
+    //     Memory[L_FDBD] = (double) fyValue;
+    //     Memory[L_BDBD] = (double) byValue;
+    //     Memory[L_IDBD] = (double) iyValue;
+    //     Memory[L_VAROR] = (double) orVAR;
+    //     Memory[L_FVAR] = (double) fyVAR;
+    //     Memory[L_BVAR] = (double) byVAR; 
+    //     Memory[L_IVAR] = (double) iyVAR;
+    //     Memory[L_DVAR] = (double) xVAR;
+    //     Memory[L_RATE] = (double) Rate;
+    //     Memory[L_BUFFERSIZE] = (double) BufferSize;
+    //     Memory[L_BUFFERCONTENTS] = (double) BufferContents();
+    //     Memory[L_QDFACT] = (double) QDFact;
+    //     Memory[L_QOFFS] = (double) QOffs;
+    //     Execute(0);
+    //     MType = (int) Memory[L_MTYPE];
+    // }
 }
 
 
