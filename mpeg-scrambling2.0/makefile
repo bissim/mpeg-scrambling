@@ -22,7 +22,7 @@ BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o s
 all: mpeg
 
 clean:
-	rm *.o mpeg
+	rm *.o mpeg.exe
 
 mpeg: $(BASELINE)
 	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
