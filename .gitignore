@@ -2,9 +2,9 @@
 **/.vscode/**
 **/.settings/**
 
-/mpeg-scrambling/bin
-/mpeg-scrambling/**/*.o
-/mpeg-scrambling/**/*.exe
+/mpeg-scrambling2.0/bin
+/mpeg-scrambling2.0/*.o
+/mpeg-scrambling2.0/*.exe
 
 /Scrambling1.1/bin
 /Scrambling1.1/manifest.mf
