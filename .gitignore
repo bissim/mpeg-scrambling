@@ -3,7 +3,11 @@
 **/.settings/**
 
 /mpeg-scrambling/bin
+/mpeg-scrambling/**/*.o
+/mpeg-scrambling/**/*.exe
 
 /Scrambling1.1/bin
 /Scrambling1.1/manifest.mf
 /Scrambling1.1/nbbuild.xml
+/Scrambling1.1/build/
+/Scrambling1.1/dist/
