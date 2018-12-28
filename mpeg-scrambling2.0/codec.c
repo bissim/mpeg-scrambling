@@ -294,7 +294,7 @@ void DecodeAC(index,matrix)
       if (k>=BLOCKSIZE)
 	{
 	  WHEREAMI();
-	  printf("k greater than blocksize:\n",k);
+	  printf("k (%d) greater than blocksize:\n",k);
 	  break;
 	}
       matrix[k++] = l;
@@ -303,7 +303,7 @@ void DecodeAC(index,matrix)
   if (r=Decode(T1DHuff))
     {
       WHEREAMI();
-      printf("EOB expected, found 0x%x.\n",r);
+      printf("EOB expected, found 0x%d.\n",r);
     }
 }
 
@@ -387,7 +387,7 @@ void CBPDecodeAC(index,matrix)
       if (k>=BLOCKSIZE)
 	{
 	  WHEREAMI();
-	  printf("k greater than blocksize:\n",k);
+	  printf("k (%d) greater than blocksize:\n",k);
 	  break;
 	}
       matrix[k++] = l;
@@ -396,7 +396,7 @@ void CBPDecodeAC(index,matrix)
   if (r=Decode(T1DHuff))
     {
       WHEREAMI();
-      printf("EOB expected, found 0x%x.\n",r);
+      printf("EOB expected, found 0x%d.\n",r);
     }
 }
 

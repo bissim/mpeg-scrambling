@@ -9,12 +9,12 @@ CC = gcc
 
 # w ang g parameters have been introduced for debug purposes
 # remove them in production environment
-MFLAGS = -w -O -g
+MFLAGS = -O
 DEFS = system.h globals.h marker.h watermark.h scrambling.h cJSON.h
 BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
 
 .c.o:
-	$(CC) $(MFLAGS) -c $*.c 
+	gcc $(MFLAGS) -c $*.c 
 
 .c.ln:
 	lint -c $*.c 
@@ -25,7 +25,7 @@ clean:
 	rm *.o mpeg.exe
 
 mpeg: $(BASELINE)
-	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
+	gcc $(MFLAGS) $(BASELINE) -lm -o mpeg
 
 mpeg.o: mpeg.c $(DEFS) mpeg.h
 codec.o: codec.c $(DEFS)
@@ -66,7 +66,7 @@ lcheck: mpeg.ln codec.ln marker.ln huffman.ln io.ln chendct.ln lexer.ln mem.ln m
 #htable:htable.lex
 #	lex htable.lex
 #	mv lex.yy.c htable.c
-#	$(CC) htable.c -o htable -ll
+#	gcc htable.c -o htable -ll
 #
 #
 #  Caution: Sometimes -ll is required.
