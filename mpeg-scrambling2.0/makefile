@@ -14,7 +14,7 @@ DEFS = system.h globals.h marker.h watermark.h scrambling.h cJSON.h
 BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
 
 .c.o:
-	gcc $(MFLAGS) -c $*.c 
+	$(CC) $(MFLAGS) -c $*.c 
 
 .c.ln:
 	lint -c $*.c 
@@ -25,7 +25,7 @@ clean:
 	rm *.o mpeg.exe
 
 mpeg: $(BASELINE)
-	gcc $(MFLAGS) $(BASELINE) -lm -o mpeg
+	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
 
 mpeg.o: mpeg.c $(DEFS) mpeg.h
 codec.o: codec.c $(DEFS)
@@ -66,7 +66,7 @@ lcheck: mpeg.ln codec.ln marker.ln huffman.ln io.ln chendct.ln lexer.ln mem.ln m
 #htable:htable.lex
 #	lex htable.lex
 #	mv lex.yy.c htable.c
-#	gcc htable.c -o htable -ll
+#	$(CC) htable.c -o htable -ll
 #
 #
 #  Caution: Sometimes -ll is required.

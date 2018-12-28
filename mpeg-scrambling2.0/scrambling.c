@@ -254,7 +254,7 @@ void startScrambling(){
     /////////// INVOCAZIONE DELLA SYSTEM CALL VERSO L'APPLICAZIONE DI SCRAMBLING ////
     /////////////////////////////////////////////////////////////////////////////////
     char command[150];
-    sprintf(command, "java -Djava.library.path=C:\\Users\\bisim\\opencv\\build\\bin -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
+    sprintf(command, "java -Djava.library.path=/usr/local/lib/ -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
     system(command);
     
     char fileN2[50];
