@@ -357,7 +357,6 @@ int BufferSize = 20*(16*1024);       /* 320 kbits */
 
 /*START*/
 
-struct timeval _start, _stop;
 
 /*BFUNC
  
@@ -372,9 +371,10 @@ char **argv;
 {
     BEGIN("main");
     int i,p,s;
+    struct timeval _start, _stop;
     
     // ai fini del testing
-    gettimeofday(&_start,NULL);
+    gettimeofday(&_start, NULL);
     
     MakeImage();   /* Initialize storage */
     MakeFrame();
