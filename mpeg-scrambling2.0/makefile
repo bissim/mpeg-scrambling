@@ -9,7 +9,7 @@ CC = gcc
 
 # w ang g parameters have been introduced for debug purposes
 # remove them in production environment
-MFLAGS = -O
+MFLAGS = -O3 -g -w
 DEFS = system.h globals.h marker.h watermark.h scrambling.h cJSON.h
 BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
 
@@ -22,7 +22,7 @@ BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o s
 all: mpeg
 
 clean:
-	rm *.o mpeg.exe
+	rm *.o mpeg
 
 mpeg: $(BASELINE)
 	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
