@@ -1,5 +1,6 @@
 **/nbproject/**
 **/.vscode/**
+**/*.code-workspace
 **/.settings/**
 
 /mpeg-scrambling2.0/*.o
