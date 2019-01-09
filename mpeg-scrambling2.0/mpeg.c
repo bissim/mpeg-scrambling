@@ -18,26 +18,26 @@
 /*
  ************************************************************
  mpeg.c
- 
+
  This is the file that has the "main" routine and all of the associated
  high-level routines.  Some of these routines are kludged from the
  jpeg.c files and have somewhat more extensibility towards multiple
  image components and sampling rates than required.
- 
+
  This file was written before the established structure given in the
  MPEG coded bitstream syntax.  Much of the inherent structure of the
  finalized syntax is not exploited.
- 
+
  *******************
- 
+
  Update 2016:
  Insert a watermark file or text message in mpeg file
  Extract a watermark file or text message from mpeg file
- 
+
  Author: Leo Aniello (aniello.leo@gmail.com)
  Copyright(C) 2016 Leo Aniello, all rights reserved.
  Salerno University
- 
+
  ************************************************************
  */
 
@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <sys/time.h>
+#include <time.h>
 #include "globals.h"
 #include "qtables.h"
 #include "mpeg.h"
@@ -161,11 +161,11 @@ int CurrentMBA=0;
 /* We define the following variables by layers, to avoid compatibility
  problems with compilers unable to do automatic aggregate
  initialization.
- 
+
  The MType arrays are indexed on macroblock type.
  The PMType arrays are indexed on picture type and macroblock type. */
 
-// Quantization used 
+// Quantization used
 int IntraQuantMType[] = {0,1};
 int PredQuantMType[] = {0,0,0,0,1,1,1};
 int InterQuantMType[] = {0,0,0,0,0,0,0,1,1,1,1};
@@ -177,7 +177,7 @@ int *QuantPMType[] = {
     InterQuantMType,
     DCQuantMType};
 
-// Motion forward vector used 
+// Motion forward vector used
 int IntraMFMType[] = {0,0};
 int PredMFMType[] = {1,0,1,0,1,0,0};
 int InterMFMType[] = {1,1,0,0,1,1,0,1,1,0,0};
@@ -189,7 +189,7 @@ int *MFPMType[] = {
     InterMFMType,
     DCMFMType};
 
-// Motion backward vector used 
+// Motion backward vector used
 int IntraMBMType[] = {0,0};
 int PredMBMType[] = {0,0,0,0,0,0,0};
 int InterMBMType[] = {1,1,1,1,0,0,0,1,0,1,0};
@@ -201,7 +201,7 @@ int *MBPMType[] = {
     InterMBMType,
     DCMBMType};
 
-// CBP used in coding 
+// CBP used in coding
 int IntraCBPMType[] = {0,0};
 int PredCBPMType[] = {1,1,0,0,1,1,0};
 int InterCBPMType[] = {0,1,0,1,0,1,0,1,1,1,0};
@@ -234,7 +234,7 @@ int ImageType=IT_NTSC;      /* Default type is NTSC, can be changed to CIF*/
 int MBWidth=0;              /* Number macroblocks widexhigh */
 int MBHeight=0;
 int HPos=0;                 /* Current macroblock position widexhigh */
-int VPos=0; 
+int VPos=0;
 int CurrentMBS=0;           /* Current macroblock slice count */
 
 int BaseFrame=0;            /* Base frame for interpolative mode */
@@ -295,7 +295,7 @@ int bmcbuf[10][64];
 int imcbuf[10][64];
 int outputbuf[10][64];
 int output[64];
-int LastDC[3]; 
+int LastDC[3];
 
 /* Variabile utili per lo scrambling */
 char *pass_scramb = "enter";
@@ -309,7 +309,7 @@ int ErrorValue=0;                  /* Error value registered */
 int Loud=MUTE;                     /* Loudness of debug */
 int Oracle=0;                      /* Oracle consults fed program */
 
-/* Statistics */ 
+/* Statistics */
 
 int NumberNZ=0;                    /* Number transform nonzero */
 int NumberOvfl=0;                  /* Number overflows registered */
@@ -357,12 +357,13 @@ int BufferSize = 20*(16*1024);       /* 320 kbits */
 
 /*START*/
 
+struct timespec _start, _stop;
 
 /*BFUNC
- 
+
  main() is the first routine called by program activation. It parses
  the input command line and sets parameters accordingly.
- 
+
  EFUNC*/
 
 int main(argc,argv)
@@ -371,11 +372,11 @@ char **argv;
 {
     BEGIN("main");
     int i,p,s;
-    struct timeval _start, _stop;
-    
+
     // ai fini del testing
-    gettimeofday(&_start, NULL);
-    
+    // gettimeofday(&_start, NULL);
+    clock_gettime(CLOCK_REALTIME, &_start);
+
     MakeImage();   /* Initialize storage */
     MakeFrame();
     inithuff();    /* Put Huffman tables on */
@@ -492,9 +493,9 @@ char **argv;
                 case 'c':
                     MVPrediction=1;
                     break;
-                case 'd': 
+                case 'd':
                     CImage->MpegMode |= M_DECODER;
-                    break; 
+                    break;
                 case 'f':
                     FrameInterval = atoi(argv[++i]);
                     break;
@@ -573,8 +574,8 @@ char **argv;
 	}
         sprintf(CImage->StreamFileName, "%s.mpg", CFrame->ComponentFilePrefix[0]);
     }
-   
-    
+
+
     if (XING)
     {
         CImage->PartialFrame=1;
@@ -584,7 +585,7 @@ char **argv;
         FrameInterval=1;     /* in following encoder... */
         FrameGroup=1;
     }
-    
+
     if (Oracle)
     {
         initparser();
@@ -602,37 +603,37 @@ char **argv;
             exit(ERROR_BOUNDS);
 	}
         framesNumber = LastFrame-BaseFrame;
-        
+
         // inizializzazione parametri di configurazione per il watermarking
         if (watermarkType>0) initInsWatermarkConfig();
-        
+
         // inizializzo lo scrambling
         if(scrambling>0) initScrambling();
-        
+
         // Prende i file y,u e v e ricostruisce l'mpeg
         MpegEncodeSequence();
-        
+
         // "pulisco" le risorse di scrambling
         if(scrambling>0) closeScrambling();
-        
+
         // operazioni da eseguire alla fine della esecuzione
         if (watermarkType != 0) finalInsWatermark();
-        
+
     }
     else
     {
-        
+
         // inizializzazione parametri di configurazione per il watermarking
         if (watermarkType>0) initExtWatermarkConfig();
-        
+
         // inizializzo l'unscrabling
         if(scrambling>0) initDeScrambling();
-        
+
         MpegDecodeSequence();
-        
+
         // "pulisco" le risorse dell'unscrambling
         if(scrambling>0) closeDeScrambling();
-        
+
         // operazioni da eseguire alla fine della esecuzione
         if (watermarkType != 0) finalExtWatermark();
     }
@@ -640,17 +641,17 @@ char **argv;
 }
 
 /*BFUNC
- 
+
  MpegEncodeSequence() encodes the sequence defined by the CImage and
  CFrame structures, startframe and lastframe.
- 
+
  EFUNC*/
 
 void MpegEncodeSequence()
 {
     BEGIN("MpegEncodeSequence");
     int i;
-    
+
     if (DCIntraFlag)     /* DC Intraframes are handled by a faster engine */
     {
         MpegEncodeDSequence();
@@ -666,9 +667,9 @@ void MpegEncodeSequence()
     CFSNext=CFStore;
     MakeFS(WRITE_IOB);
     CFSMid=CFStore;
-    
+
     swopen(CImage->StreamFileName);  // Open file .mpg in cui salvare
-    
+
 
     if (Loud > MUTE)
     {
@@ -689,7 +690,7 @@ void MpegEncodeSequence()
                 InitialQuant=31;
             else if (InitialQuant<2)
                 InitialQuant=2;
-            
+
             printf("Rate: %d  Buffersize: %d  QDFact: %d  QOffs: %d\n",Rate,BufferSize,QDFact,QOffs);
             printf("Starting Quantization: %d\n",InitialQuant);
 	}
@@ -701,15 +702,15 @@ void MpegEncodeSequence()
     TotalBits=0;
     NumberOvfl=0;
     printf("START>SEQUENCE\n");
-    
-    HorizontalSize = CImage->Width; 
+
+    HorizontalSize = CImage->Width;
     VerticalSize = CImage->Height;
     printf("Dimensione frame: %d %d\n", HorizontalSize, VerticalSize);
 
-    WriteVSHeader();    // Write out the header file 
+    WriteVSHeader();    // Write out the header file
     GroupFirstFrame=CurrentFrame=BaseFrame;
     TimeCode = Integer2TimeCode(GroupFirstFrame);
-    if (XING) ClosedGOP=0; 
+    if (XING) ClosedGOP=0;
     else ClosedGOP=1;        // Closed GOP is 1 at start of encoding.
     WriteGOPHeader();   // Set up first frame
     ClosedGOP=0;        // Reset closed GOP
@@ -720,15 +721,15 @@ void MpegEncodeSequence()
     ReadFS();
     TemporalReference = 0;
     MpegEncodeIPBDFrame();
-    
+
 
     for(FrameIntervalCount=0;BaseFrame<LastFrame;FrameIntervalCount++)
     {
-        
-        
+
+
         if (BaseFrame+FrameInterval > LastFrame)
             FrameInterval = LastFrame-BaseFrame;
-        LoadFGroup(BaseFrame);                  // We do motion compensation 
+        LoadFGroup(BaseFrame);                  // We do motion compensation
         InterpolativeBME();
         CurrentFrame=BaseFrame+FrameInterval;   // Load in next base
         if (!((FrameIntervalCount+1)%FrameGroup))
@@ -767,45 +768,47 @@ void MpegEncodeSequence()
             CFStore=CFSUse; CFSNew=CFSMid;
             ReadFS();
             MpegEncodeIPBDFrame();
-            
+
 	}
         BaseFrame+=FrameInterval;         // Shift base frame to next interval
-       
+
     }
-    WriteVEHeader();              // Write out the end header... 
+    WriteVEHeader();              // Write out the end header...
     swclose();
-    
+
     /*
      SaveMem("XX",CFS->fs[0]->mem);
      SaveMem("YY",OFS->fs[0]->mem);
      */
     printf("END>SEQUENCE\n");
     printf("Number of buffer overflows: %d\n",NumberOvfl);
-    
-    gettimeofday(&_stop, NULL);
-    double secs = (double)(_stop.tv_usec - _start.tv_usec)/ 1000000 + (double) (_stop.tv_sec - _start.tv_sec);
-    
-    printf("Tempo impiegato: %fs\n", secs);
+
+    // gettimeofday(&_stop, NULL);
+    clock_gettime(CLOCK_REALTIME, &_stop);
+    const int NS_IN_S = 1E9;
+    double secs = (_stop.tv_sec - _start.tv_sec) + (_stop.tv_nsec - _start.tv_nsec)/ NS_IN_S; // TODO check returned value
+
+    printf("Tempo impiegato: %.3f s\n", secs);
 }
 
 /*BFUNC
- 
+
  MpegEncodeDSequence() encodes the DC intraframe sequence defined by
  the CImage and CFrame structures, startframe and lastframe.
- 
+
  EFUNC*/
 
 static void MpegEncodeDSequence()
 {
     BEGIN("MpegEncodeDSequence");
-    
+
     MakeFGroup();        /* Make our group structure */
     MakeStat();          /* Make the statistics structure */
     MakeFS(READ_IOB);    /* Make our frame stores */
     CFSUse=CFStore;
     MakeFS(WRITE_IOB);
     CFSNext=CFStore;
-    
+
     swopen(CImage->StreamFileName);  /* Open file */
     if (Loud > MUTE)
     {
@@ -828,17 +831,17 @@ static void MpegEncodeDSequence()
     ClosedGOP=0;        /* Reset closed GOP */
     TemporalReference = 0;
     PType=P_DCINTRA;
-    
+
     for(CurrentFrame=StartFrame;CurrentFrame<=LastFrame;CurrentFrame++)
     {
-        
+
         MakeFileNames();
         VerifyFiles();
         CFStore=CFSUse; CFSNew=CFSNext;
         ReadFS();
         MpegEncodeIPBDFrame();
         TemporalReference++;
-        
+
     }
     WriteVEHeader();              /* Write out the end header... */
     swclose();
@@ -851,10 +854,10 @@ static void MpegEncodeDSequence()
 }
 
 /*BFUNC
- 
+
  ExecuteQuantization() references the program in memory to define the
  quantization required for coding the next block.
- 
+
  EFUNC*/
 
 void ExecuteQuantization(Qptr)
@@ -862,7 +865,7 @@ int *Qptr;
 {
     BEGIN("ExecuteQuantization");
     int CurrentSize;
-    
+
     CurrentSize = BufferContents();
     *Qptr = (CurrentSize/QDFact) + QOffs;
     if ((PType==P_INTRA)||(PType==P_PREDICTED))
@@ -889,9 +892,9 @@ int *Qptr;
 }
 
 /*BFUNC
- 
+
  CleanStatistics() cleans/initializes the type statistics in memory.
- 
+
  EFUNC*/
 
 static void CleanStatistics()
@@ -912,19 +915,19 @@ static void CleanStatistics()
 }
 
 /*BFUNC
- 
+
  CollectStatistics() is used to assemble and calculate the relevant
  encoding statistics.  It also prints these statistics out to the
  screen.
- 
+
  EFUNC*/
 
 void CollectStatistics()
 {
-  
+
     BEGIN("CollectStatistics");
     int x;
-    
+
     x = mwtell();                    // Calculate the size in bits
     LastBits = x - TotalBits;
     TotalBits = x;
@@ -958,16 +961,16 @@ void CollectStatistics()
     printf("UV    Freq: ");
     for(x=0;x<MaxTypes;x++) printf("%5d",UVTypeFrequency[x]);
     printf("\n");
- 
+
 }
 
 
 /*BFUNC
- 
+
  MVBoundIndex() calculates the index for the motion vectors given two motion
  vector arrays, MVX, and MVY.  The return value is appropriate for
  ForwardIndex of BackwardIndex
- 
+
  EFUNC*/
 
 static int MVBoundIndex(MVX,MVY)
@@ -976,7 +979,7 @@ int *MVY;
 {
     BEGIN("MVBoundIndex");
     int i, mvpos=0, mvneg=0, mvtest, best;
-    
+
     for(i=0;i<MBWidth*MBHeight;i++)
     {
         mvtest = *(MVX++);
@@ -986,16 +989,16 @@ int *MVY;
         if (mvtest>mvpos) mvpos = mvtest;
         else if (mvtest<mvneg) mvneg = mvtest;
     }
-    
+
     best = (mvpos>>4);  /* Get positive bound, some (1<<4)*(1<<FI)-1 */
     mvneg = -mvneg;                      /* Get similar neg bound, */
     if (mvneg>0) mvneg = (mvneg-1)>>4;   /* some -(1<<4)*(1<<FI) */
     else mvneg = 0;
-    
+
     if (mvneg > best) best = mvneg;
-    
+
     /* Now we need to find the log of this value between 0 and n */
-    
+
     if (best >= (1<<5))
     {
         WHEREAMI();
@@ -1006,11 +1009,11 @@ int *MVY;
 }
 
 /*BFUNC
- 
+
  MpegEncodeIPBDFrame(Intra,Predicted,)
  ) is used to encode a single Intra; is used to encode a single Intra, Predicted,
  Bidirectionally predicted, DC Intra frame to the opened stream.
- 
+
  EFUNC*/
 int length;
 void MpegEncodeIPBDFrame()
@@ -1018,10 +1021,10 @@ void MpegEncodeIPBDFrame()
     BEGIN("MpegEncodeIPBDFrame");
     int i,length;
 
-    
+
     if (Rate)                               /* Assume no decoder delay */
         BufferFullness = (90000*((BufferSize - BufferContents())/400))/(Rate/400);
-    
+
     switch(PType)
     {
         case P_INTRA:
@@ -1049,20 +1052,20 @@ void MpegEncodeIPBDFrame()
             break;
     }
     CleanStatistics();
-    
+
     ForwardIndex=BackwardIndex=0;
     if (DynamicMVBound){
         /* Calculate a larger motion vector */
-        
+
         if ((PType==P_PREDICTED)||(PType==P_INTERPOLATED))
             ForwardIndex = MVBoundIndex(FMX[FrameDistance],FMY[FrameDistance]);
         if ((PType==P_INTERPOLATED))
             BackwardIndex = MVBoundIndex(BMX[FrameDistance],BMY[FrameDistance]);
     }else{
         /* The following equations rely on a maximum bound from -16->15*fd */
-        /* for telescopic motion estimation; if a larger motion vector */  
+        /* for telescopic motion estimation; if a larger motion vector */
         /* is desired, it must be calculated as below. */
-        
+
         if ((PType==P_PREDICTED)||(PType==P_INTERPOLATED)){
             ForwardIndex=FrameDistance-1;
             if (ForwardIndex >= (1<<5))
@@ -1073,8 +1076,8 @@ void MpegEncodeIPBDFrame()
             for(i=4;i>=0;i--) if (ForwardIndex&(1<<i)) break;
             ForwardIndex = i+2;
 	}
-        
-        
+
+
         if ((PType==P_INTERPOLATED)){
             BackwardIndex = FrameInterval-FrameDistance-1;
             if (BackwardIndex >= (1<<5)){
@@ -1085,26 +1088,26 @@ void MpegEncodeIPBDFrame()
             BackwardIndex = i+2;
 	}
     }
-    
+
     if ((ForwardIndex>6)||(BackwardIndex>6)){
         WHEREAMI();
         printf("Warning: possible motion vectors out of range.\n");
     }
-    
+
     /*printf("ForwardIndex: %d;  BackwardIndex: %d\n",
      ForwardIndex, BackwardIndex);*/
-    
+
     WritePictureHeader();
-    
+
     int a = 0;
-   
+
     /***********************************************************/
-    // SE PASSATO IL PARAMETRO -scram APPLICA LO SCRAMBLING 
+    // SE PASSATO IL PARAMETRO -scram APPLICA LO SCRAMBLING
     if(scrambling>0){
         initPseudo4Frame();
         startScrambling();
     }/***********************************************************/
-    
+
     // BEGIN CODING
     if (!MBperSlice) MBperSlice=MBWidth;  // Set macroblocks per slice
     HPos=VPos=0;
@@ -1115,23 +1118,23 @@ void MpegEncodeIPBDFrame()
     cP = 0;
     cx = 0;
     cy = 0;
-    modX = 0;   
+    modX = 0;
     modY = 0;
-    
+
     while(VPos<MBHeight){
         CurrentMBS++;
         length = MBWidth*MBHeight - (HPos + (VPos*MBWidth));
         if ((MBperSlice<0)||(length<MBperSlice)) MBperSlice=length;
         MpegEncodeSlice(MBperSlice);
     }
-    
+
     HPos=VPos=0;
     if (Rate) BufferOffset -= (Rate*FrameSkip/FrameRate());
     CollectStatistics();
     Statistics(CFSUse,CFSNew);
-    
 
-    
+
+
 }
 
 
@@ -1140,7 +1143,7 @@ int Count;
 {
     BEGIN("MpegEncodeSlice");
     int i,x;
-    
+
     LastMVD1V=LastMVD1H=LastMVD2V=LastMVD2H=0; /* Reset MC */
     if (Loud > MUTE) printf("VPos: %d \n",VPos);
     if ((Rate)&&(CurrentFrame!=StartFrame)) /* Change Quantization */
@@ -1149,18 +1152,18 @@ int Count;
     SVP = VPos+1;
     /* printf("Write slice\n"); */
     WriteMBSHeader();
-    
+
     for(x=0;x<3;x++) LastDC[x]=128;   /* Reset DC pred., irrsp. LastMType */
-    
+
     /* LastMBA = (VPos*MBWidth)+HPos-1; */
-    
+
     EncEndSlice=EncStartSlice=0;
     for(i=0;i<Count;i++)
     {
-        
+
         if (!i) EncStartSlice=1;        /* Special flags */
         if ((i==Count-1)&&EncPerfectSlice) EncEndSlice=1;
-        
+
         if (VPos >= MBHeight)
 	{
             WHEREAMI();
@@ -1185,9 +1188,9 @@ int Count;
 	    }
 	}
         //printf("Hpos:%d  Vpos:%d\n",HPos,VPos);
-        
+
         MpegEncodeMDU();
-        
+
         HPos++;
         if (HPos >= MBWidth)
 	{
@@ -1197,24 +1200,24 @@ int Count;
 }
 
 /*BFUNC
- 
+
  MpegEncodeMDU() encodes the current MDU.  It finds the macroblock
  type, attempts to compress the macroblock type, and then writes the
  macroblock type out. The decoded MDU is then saved for predictive
  encoding.
- 
+
  EFUNC*/
 
 /* QUESTO METODO VIENE INVOCATO 330 VOLTE ????? */
 static void MpegEncodeMDU()
 {
     BEGIN("MpegEncodeMDU");
-    
-    
+
+
     MpegFindMType();
-   
+
     MpegCompressMType();
-    
+
     MpegWriteMType();
     //MpegDecodeSaveMDU();
 
@@ -1229,16 +1232,16 @@ static void MpegEncodeMDU()
         printf("Illegal picture type: %d macroblock type: %d.\n",PType,MType);
     }
     LastMType=MType;
-   
+
 }
 
 
 
 /*BFUNC
- 
+
  MpegFindMType() makes an initial decision as to the macroblock type
  used for MPEG encoding.
- 
+
  EFUNC*/
 void MpegFindMType()
 {
@@ -1248,8 +1251,8 @@ void MpegFindMType()
     int *inter;
     int *fmc,*bmc,*imc;
     double xValue,fyValue,byValue,iyValue,xVAR,fyVAR,byVAR,iyVAR,orM,orVAR;
-    
-    
+
+
     switch(PType)
     {
         case P_INTRA:
@@ -1260,13 +1263,13 @@ void MpegFindMType()
                 j = BlockJ[c];
                 v = BlockV[c];
                 h = BlockH[c];
-                
+
                 InstallFSIob(CFSUse,j);
                 MoveTo(HPos,VPos,h,v);
                 ReadBlock(input);
             }
-             
-           
+
+
             break;
         case P_PREDICTED:
             /* Calculate decisions */
@@ -1285,7 +1288,7 @@ void MpegFindMType()
                 InstallFSIob(CFSUse,j);
                 MoveTo(HPos,VPos,h,v);
                 ReadBlock(input);
-                for(x=0;x<64;x++) 
+                for(x=0;x<64;x++)
                     fmc[x] = inter[x] = input[x];
                 InstallFSIob(CFSBase,j);
                 MoveTo(HPos,VPos,h,v);
@@ -1302,15 +1305,15 @@ void MpegFindMType()
                     {
                         orM = orM + input[x];      /* Original frame */
                         orVAR = orVAR + input[x]*input[x];
-                        
+
                         if (inter[x]>0)                   /* Interframe */
                             xValue = xValue + inter[x];
                         else
                             xValue = xValue - inter[x];
                         xVAR = xVAR + inter[x]*inter[x];
-                        
+
                         if (fmc[x]>0)                      /* Motion comp */
-                            fyValue = fyValue + fmc[x]; 
+                            fyValue = fyValue + fmc[x];
                         else
                             fyValue = fyValue - fmc[x];
                         fyVAR = fyVAR + fmc[x]*fmc[x];
@@ -1366,7 +1369,7 @@ void MpegFindMType()
                 InstallFSIob(CFSUse,j);
                 MoveTo(HPos,VPos,h,v);
                 ReadBlock(input);
-                for(x=0;x<64;x++) 
+                for(x=0;x<64;x++)
                     imc[x]=bmc[x]=fmc[x]=inter[x]=input[x];
                 InstallFSIob(CFSBase,j);
                 MoveTo(HPos,VPos,h,v);
@@ -1439,7 +1442,7 @@ void MpegFindMType()
                     if ((iyVAR > 64) && (iyVAR > orVAR)) {MType = 6;}
                     else {MType=1;}
                 }
-                else 
+                else
                 {
                     if ((byVAR > 64) && (byVAR > orVAR)) {MType = 6;}
                     else {MType=3;}
@@ -1474,7 +1477,7 @@ void MpegFindMType()
         Memory[L_IDBD] = (double) iyValue;
         Memory[L_VAROR] = (double) orVAR;
         Memory[L_FVAR] = (double) fyVAR;
-        Memory[L_BVAR] = (double) byVAR; 
+        Memory[L_BVAR] = (double) byVAR;
         Memory[L_IVAR] = (double) iyVAR;
         Memory[L_DVAR] = (double) xVAR;
         Memory[L_RATE] = (double) Rate;
@@ -1489,10 +1492,10 @@ void MpegFindMType()
 
 
 /*BFUNC
- 
+
  MpegWriteMType() writes a macroblock type out to the stream.  It
  handles the predictive nature of motion vectors, etc.
- 
+
  EFUNC*/
 
 static void MpegWriteMType()
@@ -1500,8 +1503,8 @@ static void MpegWriteMType()
     BEGIN("MpegWriteMType");
     int c,j,x;
     int *input;
-    
-    
+
+
     /* We only erase motion vectors when required */
     if (PType==P_PREDICTED)
     {
@@ -1527,7 +1530,7 @@ static void MpegWriteMType()
     {
         if (IPMType[PType][MType]) CBP=0x3f;
         else if (!CBPPMType[PType][MType]) CBP=0;
-        
+
         if (EncStartSlice)
 	{
             MBAIncrement= HPos+1;
@@ -1536,7 +1539,7 @@ static void MpegWriteMType()
         else
             MBAIncrement = (CurrentMBA-LastMBA);
         LastMBA = CurrentMBA;
-        
+
         /* printf("[MBAInc: %d; Sigma= %d]\n",MBAIncrement,CurrentMBA); */
         WriteMBHeader();
         if (IPMType[PType][MType])
@@ -1582,37 +1585,37 @@ static void MpegWriteMType()
         /* Added 8/18/93 */
         for(x=0;x<3;x++) LastDC[x]=128;  /* Reset DC prediction */
     }
-    
+
 }
 
 
 /*BFUNC
- 
+
  MpegCompressMType() makes sure that the macroblock type is legal.  It
  also handles skipping, zero CBP, and other MPEG-related macroblock
  stuff.
- 
+
  EFUNC*/
 
 static void MpegCompressMType()
 {
     int c,x;
     int *input;
-   
+
     /* Set quant */
-    
+
     if (QuantPMType[PType][MType])
     {
         UseQuant=MQuant;
         SQuant=MQuant;       /* Resets it for quantizations forward */
     }
     else {UseQuant=SQuant;}
-    
+
     SkipMode=0;
     CBP = 0x00;
     for(c=0;c<6;c++)
     {
-    
+
         if ((MFPMType[PType][MType])&&(MBPMType[PType][MType])){
             input = &imcbuf[c][0];
             //printf("imcBUF|");
@@ -1629,7 +1632,7 @@ static void MpegCompressMType()
             input = &inputbuf[c][0];
             //printf("inputBUF|");
         }
-        
+
         // l'algoritmo per il watermarking è settato AND l'opzione -d non è settata (encoder) AND è settato il livello di debug
         if(watermarkType>0 && !GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
             if(debugWatermark >= 2) {
@@ -1638,22 +1641,22 @@ static void MpegCompressMType()
                 PrintMatrix(input);
             }
         }
-        
+
         DefaultDct(input,output);
-        
+
         // l'algoritmo per il watermarking è settato AND l'opzione -d non è settata (encoder) AND è settato il livello di debug
         if(watermarkType>0 && !GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
             if(debugWatermark >= 2) {
-                printf("APPLICAZIONE DELLA DCT\n");   
+                printf("APPLICAZIONE DELLA DCT\n");
                 PrintMatrix(output);
             }
         }
-        
+
         if (IPMType[PType][MType]){
             MPEGIntraQuantize(output,MPEGIntraQ,UseQuant);
-        
-            
-            
+
+
+
             // l'algoritmo per il watermarking è settato AND l'opzione -d non è settata (encoder) AND è settato il livello di debug
             if(watermarkType>0 && !GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                 if(debugWatermark >= 2) {
@@ -1661,7 +1664,7 @@ static void MpegCompressMType()
                     PrintMatrix(output);
                 }
             }
-            
+
             if(!GetFlag(CImage->MpegMode,M_DECODER)){ // l'opzione -d non è settata (encoder)
                 if( watermarkType > 0 ){ // l'algoritmo per il watermarking è settato
                     if(watermarkType == LSB){
@@ -1672,17 +1675,17 @@ static void MpegCompressMType()
                 }
                 countIPMType++;
             }
-            
+
             if(watermarkType>0 && !GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                 if(debugWatermark >= 2) {
                     printf("APPLICAZIONE WATERMARK\n");
                     PrintMatrix(output);
                 }
             }
-            
+
         }else{
             MPEGNonIntraQuantize(output,MPEGNonIntraQ,UseQuant);
-            
+
             // l'algoritmo per il watermarking è settato AND l'opzione -d non è settata (encoder) AND è settato il livello di debug
             if(watermarkType>0 && !GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                 if(debugWatermark >= 2) {
@@ -1690,17 +1693,17 @@ static void MpegCompressMType()
                     PrintMatrix(output);
                 }
             }
-            
+
         }
-        
+
         BoundQuantizeMatrix(output);
-        
+
         // Applico lo scrambling dopo la quantizzazione per evitare perdita di informazioni sui volti oscurati
         if(!GetFlag(CImage->MpegMode,M_DECODER)){ // l'opzione -d non è settata (encoder)
             if(scrambling>0){ // se è stato passato il parametro -scramb
                 if(c < 2) ChangePixelMatrixY(output,1); // Modifico le frequenze delle righe pari del canale di luminanza Y
                 if(c > 1 && c < 4) ChangePixelMatrixY(output,2); // Modifico le frequenze delle righe dispari del canale di luminanza Y
-                
+
                 //se è stato passato il parametro robustezza -streng, applica lo scrambling anche ai blocchi di crominanza
                 if(strength > 0){
                     if(c == 4) ChangePixelMatrixU(output); // Modifico le frequenze del canale di crominanza Cr
@@ -1708,17 +1711,17 @@ static void MpegCompressMType()
                 }
             }
         }
-        
-        
+
+
         input = &outputbuf[c][0];            /* Save to output buffer */
-        
+
         ZigzagMatrix(output,input);
         if (CBPPMType[PType][MType])
 	{
             for(x=0;x<64;x++)              /* Check if coding */
                 if (input[x]) {CBP |= bit_set_mask[5-c];break;}
 	}
-        
+
         // l'algoritmo per il watermarking è settato AND l'opzione -d non è settata (encoder) AND è settato il livello di debug
         if(watermarkType>0 && !GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
             if(debugWatermark >= 2) {
@@ -1727,7 +1730,7 @@ static void MpegCompressMType()
                 printf("****************************************************************************\n");
             }
         }
-        
+
     }
     if (PType==P_PREDICTED)
     {
@@ -1790,10 +1793,10 @@ static void MpegCompressMType()
 }
 
 /*BFUNC
- 
+
  MpegEncodeDFrame() encodes just the DC Intraframe out to the currently
  open stream. It avoids full DCT calculation.
- 
+
  EFUNC*/
 
 static void MpegEncodeDFrame()
@@ -1802,7 +1805,7 @@ static void MpegEncodeDFrame()
     int c,i,j,h,v,x;
     int input[64];
     int dcval;
-    
+
     if (PType != P_DCINTRA)
     {
         WHEREAMI();
@@ -1814,9 +1817,9 @@ static void MpegEncodeDFrame()
     MBAIncrement=1;
     CleanStatistics();
     WritePictureHeader();
-    
+
     if (MBperSlice<=0) MBperSlice=MBWidth;  /* Set macroblocks per slice */
-    
+
     /* BEGIN CODING */
     for(CurrentMBA=VPos=0;VPos<MBHeight;HPos=0,VPos++)
     {
@@ -1824,7 +1827,7 @@ static void MpegEncodeDFrame()
 	{
             /* printf("VPos: %d\n",VPos);*/
             if (Loud > MUTE) printf("Vertical Position (VPos): %d \n",VPos);
-            
+
             if (!(CurrentMBA%MBperSlice))
 	    {
                 SVP = VPos+1;
@@ -1853,7 +1856,7 @@ static void MpegEncodeDFrame()
                     dcval=(dcval + 4)/8;
                 else
                     dcval=(dcval - 4)/8;
-                
+
                 if(j) {UVTypeFrequency[MType]++;}
                 else {YTypeFrequency[MType]++;}
                 CodedBlockBits=0;
@@ -1862,14 +1865,14 @@ static void MpegEncodeDFrame()
                 else
                     EncodeDC(dcval-LastDC[j],DCLumEHuff);
                 LastDC[j] = dcval;
-                
+
                 if(!j){YCoefBits+=CodedBlockBits;}
                 else if(j==1){UCoefBits+=CodedBlockBits;}
                 else{VCoefBits+=CodedBlockBits;}
-		
+
                 /* Decode everything, just in case  */
                 /* dcval = dcval *8/8  is just identity */
-                
+
                 for(x=0;x<64;x++) input[x]=dcval;
                 InstallFSIob(CFSNew,j);
                 MoveTo(HPos,VPos,h,v);
@@ -1895,10 +1898,10 @@ static void MpegEncodeDFrame()
 }
 
 /*BFUNC
- 
+
  MpegDecodeSequence() decodes the sequence defined in the CImage and
  CFrame structures; the stream is opened from this routine.
- 
+
  EFUNC*/
 
 void MpegDecodeSequence()
@@ -1910,9 +1913,9 @@ void MpegDecodeSequence()
     int BaseBegin,BaseEnd;
     int CurrentOffset,Diff; /* Stuff for calculating next frame */
     int FirstFrame;
-    
+
     sropen(CImage->StreamFileName);
-    
+
     FirstFrame=1;
     Active=Setup=0;
     CurrentFrame=BaseFrame-2; PType=P_INTERPOLATED;
@@ -1976,12 +1979,12 @@ void MpegDecodeSequence()
             if (MBSRead == -2)  /* Start of group of frames */
 	    {
                 ReadGOPHeader();         /* Next, read the header again */
-                
+
                 if (PType==P_INTERPOLATED)  /* Interp means additional frame*/
                     GroupFirstFrame=CurrentFrame+2;
                 else
                     GroupFirstFrame=CurrentFrame+1;
-                
+
                 if (FrameOffset<0)
                     FrameOffset = GroupFirstFrame - TimeCode2Integer(TimeCode);
                 else
@@ -1995,7 +1998,7 @@ void MpegDecodeSequence()
                         if (UseTimeCode) GroupFirstFrame=fnum;
 		    }
 		}
-                printf("GOP>FirstFrame: %d\n",GroupFirstFrame); 
+                printf("GOP>FirstFrame: %d\n",GroupFirstFrame);
                 Active=0;
 	    }
             else if (MBSRead== -1)
@@ -2057,7 +2060,7 @@ void MpegDecodeSequence()
                     else ClosedGOP=0;               /* else zero out */
                     if (BrokenLink&1) BrokenLink++; /* Inc by 1, to preserve */
                     else BrokenLink=0;              /* else zero out */
-                    
+
                     SwapFS(CFSNext,CFSBase);  /* Load into Next */
                     CFStore=CFSNext;
                     BaseBegin = BaseEnd;
@@ -2067,7 +2070,7 @@ void MpegDecodeSequence()
                         printf("Intraframe Decode: %d\n",CurrentFrame);
                     else if (PType==P_PREDICTED)
                         printf("Predicted Decode: %d\n",CurrentFrame);
-                    else 
+                    else
                         printf("DC Intraframe: %d\n",CurrentFrame);
                     MpegDecodeIPBDFrame();
                     break;
@@ -2101,26 +2104,26 @@ void MpegDecodeSequence()
 }
 
 /*BFUNC
- 
+
  MpegDecodeIPBDFrame() is used to decode a generic frame. Note that the
  DC Intraframe decoding is farmed off to a specialized routine for
  speed.
- 
+
  EFUNC*/
 
 void MpegDecodeIPBDFrame()
 {
     BEGIN("MpegDecodeIPBDFrame");
-    
+
     // Ad ogni inzio frame inizializza la sequenza pseudo-casuale del frame corrente
     if(scrambling>0)initPseudo4Frame();
-    
+
     int x;
     int OldType,OldMVD1V,OldMVD1H,OldMVD2V,OldMVD2H,OldCBP;
     int NextType,NextMVD1V,NextMVD1H,NextMVD2V,NextMVD2H,NextCBP;
     int NextMBA,NextVPos;
     int StartSlice,LastPass=0;
-    
+
     if (PType==P_DCINTRA)
     {
         MpegDecodeDFrame();
@@ -2185,7 +2188,7 @@ void MpegDecodeIPBDFrame()
             NextType=MType; NextCBP = CBP;
             NextMVD1V=MVD1V; NextMVD1H=MVD1H;
             NextMVD2V=MVD2V; NextMVD2H=MVD2H;
-            
+
             while(CurrentMBA < NextMBA)
 	    {
                 CurrentMBA++;
@@ -2227,14 +2230,14 @@ void MpegDecodeIPBDFrame()
 		}
                 else if (LastPass) break;
                 else  /* Reload with new MV, new macro type */
-		{ 
+		{
                     MType=NextType;CBP=NextCBP;
                     MVD1V=NextMVD1V;MVD1H=NextMVD1H;
                     MVD2V=NextMVD2V;MVD2H=NextMVD2H;
 		}
                 /* printf("[%d:%d] FM[%d:%d] BM[%d:%d]\n",
                  HPos,VPos,MVD1H,MVD1V,MVD2H,MVD2V); */
-                
+
                 MpegDecompressMDU();
                 MpegDecodeSaveMDU();
 	    }
@@ -2243,14 +2246,14 @@ void MpegDecodeIPBDFrame()
 	}
         if (MBSRead<0) break;
         else ReadHeaderTrailer();
-    }    
+    }
 }
 
 /*BFUNC
- 
+
  MpegDecompressMDU() is used to decompress the raw data from the
  stream. Motion compensation occurs later.
- 
+
  EFUNC*/
 
 static void MpegDecompressMDU()
@@ -2258,7 +2261,7 @@ static void MpegDecompressMDU()
     BEGIN("MpegDecompressMDU");
     int c,j,x;
     int *input;
-    
+
     if (Loud > MUTE)
     {
         printf("CMBS: %d CMDU: %d  LastDC: %d\n", VPos, HPos, LastDC[0]);
@@ -2286,7 +2289,7 @@ static void MpegDecompressMDU()
     {
         j=BlockJ[c];
         input = &outputbuf[c][0];
-        
+
         if (CBP & bit_set_mask[5-c])
 	{
             if (CBPPMType[PType][MType])
@@ -2312,10 +2315,10 @@ static void MpegDecompressMDU()
 
 
 /*BFUNC
- 
+
  MpegDecodeSaveMDU() is used to decode and save the results into a
  frame store after motion compensation.
- 
+
  EFUNC*/
 
 static void MpegDecodeSaveMDU()
@@ -2323,16 +2326,16 @@ static void MpegDecodeSaveMDU()
     BEGIN("MpegDecodeSaveMDU");
     int c,j,h,v;
     int *input;
-    
+
     for(c=0;c<6;c++)
     {
         v=BlockV[c]; h=BlockH[c]; j=BlockJ[c];
         input = &outputbuf[c][0];
-        
+
         if (CBP & bit_set_mask[5-c])
 	{
             IZigzagMatrix(input,output);
-            
+
             // l'algoritmo per il watermarking è settato AND l'opzione -d è settata (decoder) AND è settato il livello di debug
             if(watermarkType>0 && GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                 if(debugWatermark >= 2) {
@@ -2341,9 +2344,9 @@ static void MpegDecodeSaveMDU()
                     PrintMatrix(output);
                 }
             }
-            
-            
-            
+
+
+
             // Applico lo scrambling dopo la quantizzazione per evitare perdita di informazioni sui volti oscurati
             if(GetFlag(CImage->MpegMode,M_DECODER)){ // l'opzione -d non è settata (encoder)
                 if(scrambling>0){ // se è stato passato il parametro -scramb
@@ -2356,19 +2359,19 @@ static void MpegDecodeSaveMDU()
                     }
                 }
             }
-            
-            
-            
-            
+
+
+
+
             if (IPMType[PType][MType]){
-                
+
                 // l'algoritmo per il watermarking è settato AND l'opzione -d è settata (decoder) AND è settato il livello di debug
                 if(watermarkType>0 && GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                     if(debugWatermark >= 2) {
                         printf("ESTRAZIONE WATERMARK\n");
                     }
                 }
-                
+
                 if(GetFlag(CImage->MpegMode,M_DECODER)){ // l'opzione -d è settata (decoder)
                     if(watermarkType > 0){ // l'algoritmo per il watermarking è settato
                         if(watermarkType == LSB){
@@ -2379,13 +2382,13 @@ static void MpegDecodeSaveMDU()
                     }
                     countIPMType++;
                 }
-                
+
                 MPEGIntraIQuantize(output,MPEGIntraQ,UseQuant);
             }else{
                 MPEGNonIntraIQuantize(output,MPEGNonIntraQ,UseQuant);
             }
             BoundIQuantizeMatrix(output);
-            
+
             // l'algoritmo per il watermarking è settato AND l'opzione -d è settata (decoder) AND è settato il livello di debug
             if(watermarkType>0 && GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                 if(debugWatermark >= 2){
@@ -2393,9 +2396,9 @@ static void MpegDecodeSaveMDU()
                     PrintMatrix(output);
                 }
             }
-            
+
             DefaultIDct(output,input);
-            
+
             // l'algoritmo per il watermarking è settato AND l'opzione -d è settata (decoder) AND è settato il livello di debug
             if(watermarkType>0 && GetFlag(CImage->MpegMode,M_DECODER) && debugWatermark){ // Debug watermarking
                 if(debugWatermark >= 2){
@@ -2404,17 +2407,17 @@ static void MpegDecodeSaveMDU()
                     printf("****************************************************************************\n");
                 }
             }
-           
+
 	}
-        
-        
+
+
         if (!IPMType[PType][MType])
 	{
             /*
              printf("MVD1H: %d MVD1V: %d\n",MVD1H,MVD1V);
              printf("MVD2H: %d MVD2V: %d\n",MVD2H,MVD2V);
              */
-            
+
             if ((MFPMType[PType][MType])&& /* Do both */
                     (MBPMType[PType][MType]))
 	    {
@@ -2427,7 +2430,7 @@ static void MpegDecodeSaveMDU()
                     MX = MVD1H;  MY = MVD1V;
                     NX = MVD2H;  NY = MVD2V;
 		}
-                else 
+                else
 		{
                     MX = MVD1H/2;  MY = MVD1V/2;
                     NX = MVD2H/2;  NY = MVD2V/2;
@@ -2458,19 +2461,19 @@ static void MpegDecodeSaveMDU()
         else
             InstallIob(j);  /* Should be correct */
         MoveTo(HPos,VPos,h,v);
-        
+
         BoundIntegerMatrix(input);
         WriteBlock(input);
-        
-        
+
+
     }
 }
 
 /*BFUNC
- 
+
  MpegDecodeDFrame() decodes a single DC Intraframe off of the stream.
  This function is typically called only from MpegDecodeIPBDFrame().
- 
+
  EFUNC*/
 
 static void MpegDecodeDFrame()
@@ -2480,7 +2483,7 @@ static void MpegDecodeDFrame()
     int input[64];
     int StartSlice;
     int dcval;
-    
+
     CurrentMBS=0;
     CurrentMBA= -1;
     HPos=VPos=0;
@@ -2521,7 +2524,7 @@ static void MpegDecodeDFrame()
 	    }
             CurrentMBA++;
             /* Save data with previous state */
-            
+
             if (Loud > MUTE)
 	    {
                 printf("CMBS: %d CMDU: %d  LastDC: %d\n",
@@ -2530,7 +2533,7 @@ static void MpegDecodeDFrame()
             for(c=0;c<6;c++)
 	    {
                 v=BlockV[c]; h=BlockH[c]; j=BlockJ[c];
-                
+
                 if (j)
                     dcval = DecodeDC(DCChromDHuff) + LastDC[j];
                 else
@@ -2550,15 +2553,15 @@ static void MpegDecodeDFrame()
 }
 
 /*BFUNC
- 
+
  PrintImage() prints the image structure to stdout.
- 
+
  EFUNC*/
 
 void PrintImage()
 {
     BEGIN("PrintImage");
-    
+
     //printf("*** Image ID: %x ***\n",CImage);
     if (CImage)
     {
@@ -2572,16 +2575,16 @@ void PrintImage()
 }
 
 /*BFUNC
- 
+
  PrintFrame() prints the frame structure to stdout.
- 
+
  EFUNC*/
 
 void PrintFrame()
 {
     BEGIN("PrintFrame");
     int i;
-    
+
     //printf("*** Frame ID: %x ***\n",CFrame);
     if (CFrame)
     {
@@ -2602,16 +2605,16 @@ void PrintFrame()
 }
 
 /*BFUNC
- 
+
  MakeImage() makes an image structure and installs it as the current
  image.
- 
+
  EFUNC*/
 
 void MakeImage()
 {
     BEGIN("MakeImage");
-    
+
     if (!(CImage = MakeStructure(IMAGE)))
     {
         WHEREAMI();
@@ -2625,17 +2628,17 @@ void MakeImage()
 }
 
 /*BFUNC
- 
+
  MakeFrame() makes a frame structure and installs it as the current
  frame structure.
- 
+
  EFUNC*/
 
 void MakeFrame()
 {
     BEGIN("MakeFrame");
     int i;
-    
+
     if (!(CFrame = MakeStructure(FRAME)))
     {
         WHEREAMI();
@@ -2657,29 +2660,29 @@ void MakeFrame()
 }
 
 /*BFUNC
- 
+
  MakeFGroup() creates a memory structure for the frame group.
- 
+
  EFUNC*/
 
 void MakeFGroup()
 {
     BEGIN("MakeFGroup");
     int i;
-    
+
     FFS = (MEM **) calloc(FrameInterval+1,sizeof(MEM *));
     for(i=0;i<=FrameInterval;i++)
     {
         FFS[i]= MakeMem(CFrame->Width[0],CFrame->Height[0]);
-        SetMem(128,FFS[i]); 
+        SetMem(128,FFS[i]);
     }
     initme();                                    /* doesn't */
 }
 
 /*BFUNC
- 
+
  LoadFGroup() loads in the memory structure of the current frame group.
- 
+
  EFUNC*/
 
 void LoadFGroup(index)
@@ -2688,7 +2691,7 @@ int index;
     BEGIN("LoadFGroup");
     int i;
     static char TheFileName[100];
-    
+
     for(i=0;i<=FrameInterval;i++)
     {
         printf("Nome del file: %s%d%s\n",
@@ -2701,7 +2704,7 @@ int index;
                 index+i,
                 CFrame->ComponentFileSuffix[0]);
         printf("Loading file: %s\n",TheFileName);
-        
+
         if (CImage->PartialFrame)
             FFS[i] =  LoadPartialMem(TheFileName,
                     CFrame->PWidth[0],
@@ -2715,22 +2718,22 @@ int index;
                     CFrame->Height[0],
                     FFS[i]);
     }
-    
-    
+
+
 }
 
 /*BFUNC
- 
+
  MakeFstore() makes and installs the frame stores for the motion
  estimation and compensation.
- 
+
  EFUNC*/
 
 void MakeFStore()
 {
     BEGIN("MakeFStore");
     int i;
-    
+
     CFStore = (FSTORE *) malloc(sizeof(FSTORE));
     CFStore->NumberComponents = 0;
     for(i=0;i<MAXIMUM_SOURCES;i++)
@@ -2740,10 +2743,10 @@ void MakeFStore()
 }
 
 /*BFUNC
- 
+
  MakeStat() makes the statistics structure to hold all of the current
  statistics. (CStat).
- 
+
  EFUNC*/
 
 
@@ -2754,17 +2757,17 @@ void MakeStat()
 }
 
 /*BFUNC
- 
+
  SetCCITT(QCIF,)
  ) just sets the width and height parameters for the QCIF; just sets the width and height parameters for the QCIF,
  CIF, NTSC-CIF frame sizes.
- 
+
  EFUNC*/
 
 void SetCCITT()
 {
     BEGIN("SetCCITT");
-    
+
     switch(ImageType)
     {
         case IT_NTSC:
@@ -2789,22 +2792,22 @@ void SetCCITT()
 
 
 /*BFUNC
- 
+
  CreateFrameSizes() is used to initialize all of the frame sizes to fit
  that of the input image sequence.
- 
+
  EFUNC*/
 
 void CreateFrameSizes()
 {
     BEGIN("CreateFrameSizes");
-    
-    
+
+
     int i,maxh,maxv;
-    
+
     CFrame->NumberComponents = 3;
-    CFrame->hf[0] = 2;                 // Default numbers 
-    CFrame->vf[0] = 2;                 // DO NOT CHANGE 
+    CFrame->hf[0] = 2;                 // Default numbers
+    CFrame->vf[0] = 2;                 // DO NOT CHANGE
     CFrame->hf[1] = 1;
     CFrame->vf[1] = 1;
     CFrame->hf[2] = 1;
@@ -2815,7 +2818,7 @@ void CreateFrameSizes()
         printf("A file prefix should be specified.\n");
         exit(ERROR_BOUNDS);
     }
-    
+
     for(i=0;i<CFrame->NumberComponents;i++)
     {
         if (*CFrame->ComponentFilePrefix[i]=='\0')
@@ -2836,7 +2839,7 @@ void CreateFrameSizes()
     printf("Image Dimensions: %dx%d   MPEG Block Dimensions: %dx%d\n",
             HorizontalSize,VerticalSize,CImage->Width,CImage->Height);
     maxh = CFrame->hf[0];                   // Look for maximum vf, hf
-    maxv = CFrame->vf[0];                   // Actually already known 
+    maxv = CFrame->vf[0];                   // Actually already known
     for(i=1;i<CFrame->NumberComponents;i++)
     {
         if (CFrame->hf[i]>maxh)
@@ -2844,7 +2847,7 @@ void CreateFrameSizes()
         if (CFrame->vf[i]>maxv)
             maxv = CFrame->vf[i];
     }
-    
+
     if (CImage->PartialFrame)
     {
         for(i=0;i<CFrame->NumberComponents;i++)
@@ -2868,15 +2871,15 @@ void CreateFrameSizes()
 }
 
 /*BFUNC
- 
+
  Help() prints out help information about the MPEG program.
- 
+
  EFUNC*/
 
 void Help()
 {
     BEGIN("Help");
-    
+
     printf("mpeg [-d] [-NTSC] [-CIF] [-QCIF] [-PF] [-NPS] [-MBPS mbps] [-UTC]\n");
     printf("     [-XING] [-DMVB] [-MVNT]\n");
     printf("     [-a StartNumber] [-b EndNumber]\n");
@@ -2948,17 +2951,17 @@ void Help()
 }
 
 /*BFUNC
- 
+
  MakeFileNames() creates the filenames for the component files
  from the appropriate prefix and suffix commands.
- 
+
  EFUNC*/
 
 void MakeFileNames()
 {
     BEGIN("MakeFileNames");
     int i;
-    
+
     for(i=0;i<3;i++)
     {
 
@@ -2970,20 +2973,20 @@ void MakeFileNames()
 }
 
 /*BFUNC
- 
+
  VerifyFiles() checks to see if the component files are present and
  of the correct length.
- 
+
  EFUNC*/
 
 void VerifyFiles()
 {
     BEGIN("VerifyFiles");
     int i,FileSize;
-    FILE *test;  
-    
+    FILE *test;
+
     printf("Mumeri di componente: %d\n", CFrame->NumberComponents);
-    
+
     for(i=0;i<CFrame->NumberComponents;i++)
     {
         printf("Mumero: %s\n", CFrame->ComponentFileName[i]);
@@ -3012,7 +3015,7 @@ void VerifyFiles()
                         CFrame->PHeight[i]);
 	    }
 	}
-        if (FileSize != CFrame->PWidth[i] * CFrame->PHeight[i]) 
+        if (FileSize != CFrame->PWidth[i] * CFrame->PHeight[i])
 	{
             WHEREAMI();
             printf("Inaccurate File Sizes: Estimated %d: %s: %d \n",
@@ -3026,10 +3029,10 @@ void VerifyFiles()
 }
 
 /*BFUNC
- 
+
  Integer2TimeCode() is used to convert a frame number into a SMPTE
  25bit time code as specified by the standard.
- 
+
  EFUNC*/
 
 int Integer2TimeCode(fnum)
@@ -3038,7 +3041,7 @@ int fnum;
     BEGIN("Integer2TimeCode");
     int code,temp;
     int TCH,TCM,TCS,TCP;
-    
+
     if (DropFrameFlag && Prate == 0x1)
     {
         TCH = (fnum/107890)%24;    /* Compensate for irregular sampling */
@@ -3096,16 +3099,16 @@ int fnum;
     }
     /*  printf("DFF: %d TCH: %d  TCM: %d  TCS: %d  TCP: %d\n",
      DropFrameFlag,TCH,TCM,TCS,TCP); */
-    
+
     code = ((((((((((DropFrameFlag<<5)|TCH)<<6)|TCM)<<1)|1)<<6)|TCS)<<6)|TCP);
     return(code);
 }
 
 /*BFUNC
- 
+
  TimeCode2Integer() is used to convert the 25 bit SMPTE time code into
  a general frame number based on 0hr 0min 0sec 0pic.
- 
+
  EFUNC*/
 
 int TimeCode2Integer(tc)
@@ -3114,7 +3117,7 @@ int tc;
     BEGIN("TimeCode2Integer");
     int fnum;
     int TCH,TCM,TCS,TCP;
-    
+
     TCP = tc &0x3f;
     tc >>=6;
     TCS = tc &0x3f;
@@ -3130,10 +3133,10 @@ int tc;
     TCH = tc &0x1f;
     tc >>=5;
     DropFrameFlag = (tc&1);
-    
+
     /*  printf("DFF: %d TCH: %d  TCM: %d  TCS: %d  TCP: %d\n",
      DropFrameFlag,TCH,TCM,TCS,TCP); */
-    
+
     if (DropFrameFlag && Prate == 0x1)
     {
         fnum = TCH*107890 + TCM*1798 + (TCM ? ((TCM-1)/10)*2 : 0) + TCS*30 + TCP;
