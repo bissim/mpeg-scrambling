@@ -357,7 +357,6 @@ int BufferSize = 20*(16*1024);       /* 320 kbits */
 
 /*START*/
 
-struct timespec _start, _stop;
 
 /*BFUNC
 
@@ -374,6 +373,7 @@ char **argv;
     int i,p,s;
 
     // ai fini del testing
+    struct timespec _start, _stop;
     // gettimeofday(&_start, NULL);
     clock_gettime(CLOCK_REALTIME, &_start);
 
@@ -637,6 +637,14 @@ char **argv;
         // operazioni da eseguire alla fine della esecuzione
         if (watermarkType != 0) finalExtWatermark();
     }
+
+    // gettimeofday(&_stop, NULL);
+    clock_gettime(CLOCK_REALTIME, &_stop);
+    const int NS_IN_S = 1E9;
+    double secs = (_stop.tv_sec - _start.tv_sec) + (_stop.tv_nsec - _start.tv_nsec)/ NS_IN_S; // TODO check returned value
+
+    printf("Tempo impiegato: %.3f s\n", secs);
+
     exit(ErrorValue);
 }
 
@@ -782,13 +790,6 @@ void MpegEncodeSequence()
      */
     printf("END>SEQUENCE\n");
     printf("Number of buffer overflows: %d\n",NumberOvfl);
-
-    // gettimeofday(&_stop, NULL);
-    clock_gettime(CLOCK_REALTIME, &_stop);
-    const int NS_IN_S = 1E9;
-    double secs = (_stop.tv_sec - _start.tv_sec) + (_stop.tv_nsec - _start.tv_nsec)/ NS_IN_S; // TODO check returned value
-
-    printf("Tempo impiegato: %.3f s\n", secs);
 }
 
 /*BFUNC
