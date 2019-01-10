@@ -6,7 +6,7 @@
 /mpeg-scrambling2.0/*.o
 /mpeg-scrambling2.0/*.exe
 /mpeg-scrambling2.0/mpeg
-/mpeg-scrambling2.0/bin/temp/
+/mpeg-scrambling2.0/bin/temp/*
 /mpeg-scrambling2.0/testSet/
 
 /Scrambling1.1/bin
