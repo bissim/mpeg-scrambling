@@ -14,7 +14,7 @@ namespace geometry
 
         public Rectangle()
         {
-            this(0, 0, 0, 0);
+            this.withBounds(0, 0, 0, 0);
         }
 
         public Rectangle.withBounds(int x, int y, int width, int height)
@@ -27,7 +27,7 @@ namespace geometry
 
         public Rectangle.withRectangle(Rectangle r)
         {
-            this(r.x, r.y, r.width, r.height);
+            this.withBounds(r.x, r.y, r.width, r.height);
         }
 
         public bool contains(int X, int Y, int W, int H)
@@ -72,7 +72,7 @@ namespace geometry
             return true;
         }
 
-        public Rectangle union(Rectangle rectangle)
+        public Rectangle union(Rectangle r)
         {
             long tx2 = this.width;
             long ty2 = this.height;
@@ -111,7 +111,7 @@ namespace geometry
             // they might overflow, though...
             if (tx2 > int.MAX) tx2 = int.MAX;
             if (ty2 > int.MAX) ty2 = int.MAX;
-            return new Rectangle(tx1, ty1, (int) tx2, (int) ty2);
+            return new Rectangle.withBounds(tx1, ty1, (int) tx2, (int) ty2);
         }
     }
 }
