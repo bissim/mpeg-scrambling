@@ -1,7 +1,7 @@
 namespace com.facedetect
 {
 
-    public interface FaceDetectorInterface<R> 
+    public interface FaceDetectorInterface<R> : Object 
     {
         /**
         * Questo metodo dovrà contenere le logiche per il riconoscimento delle facce
@@ -9,7 +9,7 @@ namespace com.facedetect
         * L'anoniminità del tipo consente di avere liste di Rettangoli, ROI ecc.
         * @return List<R> Lista di Facce riconosciute
         */
-        public abstract List<R> detectFaces();
+        public abstract Gee.List<R> detectFaces();
     }
 
 }

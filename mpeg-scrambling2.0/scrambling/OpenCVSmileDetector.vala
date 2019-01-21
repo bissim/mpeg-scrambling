@@ -5,7 +5,7 @@ using GLib;
 
 namespace com.facedetect.strategies
 {
-	public class OpenCVSmileDetector : FaceDetectorInterface<geometry.Rectangle> 
+	public class OpenCVSmileDetector : Object, FaceDetectorInterface<geometry.Rectangle> 
 	{
 		//Attenzione File è un'interfaccia
 		private GLib.File image;
