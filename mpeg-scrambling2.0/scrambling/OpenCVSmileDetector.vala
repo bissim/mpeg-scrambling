@@ -20,20 +20,20 @@ namespace com.facedetect.strategies
 		public Gee.List<geometry.Rectangle> detectFaces() 
 		{
 			Gee.List<geometry.Rectangle> rects = new Gee.ArrayList<geometry.Rectangle>();
-			OpenCV.HaarClassifierCascade faceDetector = new OpenCV.HaarClassifierCascade();
-			OpenCV.Matrix faceDetections = new OpenCV.Matrix(); //non esiste costruttore vuoto
+			//OpenCV.HaarClassifierCascade faceDetector = new OpenCV.HaarClassifierCascade(); no costruttore vuoto
+			geometry.MatOfRect faceDetections = new geometry.MatOfRect();
 			
-			for(int i=0; i<templateList.listFiles().length; i++) //metodo listFiles() inesistente
-			{
-				OpenCV.Matrix image = Imgcodecs.imread(this.image.get_path());
-				faceDetector.load(templateList.listFiles()[i].get_path()); //numero parametri del metodo load diverso
-				faceDetector.detectMultiScale(image, faceDetections);      //metodo con firma diversa
+			/* for(int i=0; i<templateList.listFiles().length; i++) //metodo listFiles() inesistente
+			{*/
+				geometry.Mat image; // = Imgcodecs.imread(this.image.get_path());
+				//faceDetector.load(templateList.listFiles()[i].get_path()); //numero parametri del metodo load diverso
+				//faceDetector.detectMultiScale(image, faceDetections);      //metodo con firma diversa
 				
-				for (geometry.Rectangle rect in faceDetections.toArray()) 
+				foreach(geometry.Rectangle rect in faceDetections.toArray()) 
 				{
-					rects.add(new geometry.Rectangle(rect.x, rect.y, rect.width, rect.height));
+					rects.add(new geometry.Rectangle.withBounds(rect.x, rect.y, rect.width, rect.height));
 				}
-			}
+			//}
 			return rects;
 		}
 	}
