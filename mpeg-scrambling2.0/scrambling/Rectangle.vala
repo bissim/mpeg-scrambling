@@ -30,7 +30,12 @@ namespace geometry
             this.withBounds(r.x, r.y, r.width, r.height);
         }
 
-        public bool contains(int X, int Y, int W, int H)
+        public bool contains(Rectangle r)
+        {
+            return containsWithBoundaries(r.x, r.y, r.width, r.height);
+        }
+
+        public bool containsWithBoundaries(int X, int Y, int W, int H)
         {
             int w = this.width;
             int h = this.height;
