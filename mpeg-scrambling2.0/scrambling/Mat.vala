@@ -9,6 +9,13 @@ namespace geometry
             nativeObj = n_Mat();
         }
 
+        public Mat.addr(long addr)
+        {
+            /* if (addr == 0)
+                throw new java.lang.UnsupportedOperationException("Native object address is NULL");*/
+            nativeObj = addr;
+        }
+
         public long total()
         {
             long retVal = n_total(nativeObj);
