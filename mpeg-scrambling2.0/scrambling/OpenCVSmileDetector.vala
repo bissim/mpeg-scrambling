@@ -2,6 +2,8 @@ using OpenCV;
 using Gee;
 using geometry;
 using GLib;
+using imgcodecs;
+using classifier;
 
 namespace com.facedetect.strategies
 {
@@ -20,14 +22,14 @@ namespace com.facedetect.strategies
 		public Gee.List<geometry.Rectangle> detectFaces() 
 		{
 			Gee.List<geometry.Rectangle> rects = new Gee.ArrayList<geometry.Rectangle>();
-			//OpenCV.HaarClassifierCascade faceDetector = new OpenCV.HaarClassifierCascade(); no costruttore vuoto
+			classifier.CascadeClassifier faceDetector = new classifier.CascadeClassifier();
 			geometry.MatOfRect faceDetections = new geometry.MatOfRect();
 			
 			/* for(int i=0; i<templateList.listFiles().length; i++) //metodo listFiles() inesistente
 			{*/
-				geometry.Mat image; // = Imgcodecs.imread(this.image.get_path());
-				//faceDetector.load(templateList.listFiles()[i].get_path()); //numero parametri del metodo load diverso
-				//faceDetector.detectMultiScale(image, faceDetections);      //metodo con firma diversa
+				geometry.Mat image = imgcodecs.Imgcodecs.imread(this.image.get_path());
+				faceDetector.load(""/*templateList.listFiles()[i].get_path()*/);
+				faceDetector.detectMultiScale(image, faceDetections);
 				
 				foreach(geometry.Rectangle rect in faceDetections.toArray()) 
 				{
