@@ -30,6 +30,7 @@ using GLib;
 using Gee;
 using imgcodecs;
 using classifier;
+using Gdk;
 
 public class Scrambling : Object 
 {
@@ -62,9 +63,9 @@ public class Scrambling : Object
 		stdout.printf("Apro il file %s",fileU);
 		stdout.printf("Apro il file %s",fileV);
 		
-		BufferedImage biY;                 //controlla!!!
-		BufferedImage bi;                  //controlla!!!
-		Scanner input;
+		Gdk.Pixbuf biY;                 
+		Gdk.Pixbuf bi;                  
+		GLib.Scanner input;
         int i,j, block, block_i, block_j, count;
         int [][] matrix;
 		
@@ -73,8 +74,9 @@ public class Scrambling : Object
 		///////////// //////////////CONTENENTE IL FRAME Y //////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////
 		
-		biY = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB); //controlla!!!
-		input = new Scanner(new File(fileY));     //controlla!!!
+		biY = new Gdk.Pixbuf.from_file_at_size(fileY.concat(".").concat(file_format), w, h); //controllare!!!
+        input = new GLib.Scanner();    
+        input.input_file(GLib.File.new_for_path(fileY));
         i = 0;
         j = 0;
         matrix = new int[h][w];
@@ -82,10 +84,10 @@ public class Scrambling : Object
         block_i = 0;
         block_j = 0;
         count = 0;
-        
-        while(input.hasNextLine()) 
+        string line;
+        while(!input.eof()) 
         {
-            string st[] = string.split(input.nextLine(),0);
+            string st[] = string.split(input.get_next_token(),0);   //controllare se è riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -126,14 +128,15 @@ public class Scrambling : Object
         		int a = matrix[i][j];
                 if(a <= 255 && a >= 0)
                 {
-            		rgb = new geometry.Color(a,a,a).getRGB();   //controlla!!
+            		rgb = (new geometry.Color(a,a,a)).getRGB();   //controlla!!
                 }
                 else
                 {
-            		rgb = new geometry.Color(0,0,0).getRGB();  //controlla!!
+            		rgb = (new geometry.Color(0,0,0)).getRGB();  //controlla!!
             	}
         		
-            	biY.setRGB(j,i,rgb);           //controlla!!
+                //biY.setRGB(j,i,rgb);           //controlla!!
+                (biY.get_pixels())[j*i] = rgb;   //controllare!!!!
         	}
         }
 	      
@@ -141,8 +144,9 @@ public class Scrambling : Object
         // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
         /////////////////////////////////////////////////////////
         
-        GLib.File outputfileY = GLib.File.new_for_path(fileY.concat(".").concat(file_format));
-        ImageIO.write(biY, file_format, outputfileY);    //controlla!!
+        //GLib.File outputfileY = GLib.File.new_for_path(fileY.concat(".").concat(file_format));  //creazione file immagine output, controllare!!!
+        //ImageIO.write(biY, file_format, outputfileY);    //controlla!!
+        biY.save(fileY.concat(".").concat(file_format),"bmp");
         
         
 		////////////////////////////////////////////////////////////////////////////////
@@ -150,8 +154,9 @@ public class Scrambling : Object
 		//////////////////////////CONTENENTE IL FRAME U ////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////
         
-        bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
-		input = new Scanner(new File(fileU));
+        bi = new Gdk.Pixbuf.from_file_at_size(fileU.concat(".").concat(file_format), w/2, h/2);
+        input = new GLib.Scanner()
+        input.input_file(GLib.File.new_for_path(fileU));
         i = 0;
         j = 0;
         matrix = new int[h/2][w/2];
@@ -160,40 +165,48 @@ public class Scrambling : Object
         block_j = 0;
         count = 0;
         
-        while(input.hasNextLine()) {
-        	StringTokenizer st = new StringTokenizer(input.nextLine(),",");
-        	
-        	while (st.hasMoreTokens()){
-        		int a = Integer.parseInt(st.nextToken());
+        while(!input.eof()) {
+        	string st[] = string.split(input.get_next_token(),0);   //controllare se è riga. 
+        	int k = 0;
+            while (k < st.length)
+            {
+        		int a = int.parse(st[k]]);
         		matrix[i+block_i][j+block_j] = a;
-        		j++;
+                j++;
+                k++;
             }
         	
         	i++;
         	j = 0;
         	
         
-        	if(i == 8) {
+            if(i == 8) 
+            {
         		i = 0;
         		j = 0;
         		block_j += 8;
-        		if(block_j >= w/2) {
+                if(block_j >= w/2) 
+                {
         			block_j = 0;
         			block_i += 8;
         		}
         		
-        		if(block_i >= h/2) {
+                if(block_i >= h/2) 
+                {
         			block_i = 0;
         			break;
         		}	
         	}
         }
         
-        for(i = 0;i < h/2;i++) {
-        	for(j = 0;j < w/2;j++) {
+        for(i = 0;i < h/2;i++) 
+        {
+            for(j = 0;j < w/2;j++) 
+            {
         		int a = matrix[i][j];
-        		rgb = new Color(a,a,a).getRGB();
-            	bi.setRGB(j,i,rgb);
+        		rgb = (new geometry.Color(a,a,a)).getRGB();
+                //bi.setRGB(j,i,rgb);
+                (bi.get_pixels())[j*i] = rgb;
         	}
         }
 	       
@@ -201,8 +214,9 @@ public class Scrambling : Object
 		// SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
 		/////////////////////////////////////////////////////////
         
-        File outputfileU = new File(fileU+"."+file_format);
-        ImageIO.write(bi, file_format, outputfileU);
+        //File outputfileU = GLib.File.new_for_path(fileU.concat(".").concat(file_format));
+        //ImageIO.write(bi, file_format, outputfileU);
+        bi.save(fileU.concat(".").concat(file_format),"bmp");
         
        
         ////////////////////////////////////////////////////////////////////////////////
@@ -211,8 +225,9 @@ public class Scrambling : Object
 		////////////////////////////////////////////////////////////////////////////////
         
         
-        bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
-		input = new Scanner(new File(fileV));
+        bi = new Gdk.Pixbuf.from_file_at_size(fileV.concat(".").concat(file_format), w/2, h/2);
+        input = new GLib.Scanner()
+        input.input_file(GLib.File.new_for_path(fileV));
         i = 0;
         j = 0;
         matrix = new int[h/2][w/2];
@@ -221,52 +236,64 @@ public class Scrambling : Object
         block_j = 0;
         count = 0;
         
-        while(input.hasNextLine()) {
-        	StringTokenizer st = new StringTokenizer(input.nextLine(),",");
-        	
-        	while (st.hasMoreTokens()){
+        while(!input.eof()) 
+        {
+        	string st[] = string.split(input.get_next_token(),0);   //controllare se è riga. 
+        	int k = 0;
+            while (k < st.length)
+            {
         		int a = Integer.parseInt(st.nextToken());
         		matrix[i+block_i][j+block_j] = a;
-        		j++;
+                j++;
+                k++
             }
         	
         	i++;
         	j = 0;
         	
         
-        	if(i == 8) {
+            if(i == 8) 
+            {
         		i = 0;
         		j = 0;
         		block_j += 8;
-        		if(block_j >= w/2) {
+                if(block_j >= w/2) 
+                {
         			block_j = 0;
         			block_i += 8;
         		}
         		
-        		if(block_i >= h/2) {
+                if(block_i >= h/2) 
+                {
         			block_i = 0;
         			break;
         		}	
         	}
         }
         
-        for(i = 0;i < h/2;i++) {
-        	for(j = 0;j < w/2;j++) {
+        for(i = 0;i < h/2;i++) 
+        {
+            for(j = 0;j < w/2;j++) 
+            {
         		int a = matrix[i][j];
-        		if(a <= 255 && a >= 0){
-            		rgb = new Color(a,a,a).getRGB();
-            	}else{
-            		rgb = new Color(0,0,0).getRGB();
+                if(a <= 255 && a >= 0)
+                {
+            		rgb = (new geometry.Color(a,a,a)).getRGB();
+                }
+                else
+                {
+            		rgb = (new geometry.Color(0,0,0)).getRGB();
             	}
         		
-            	bi.setRGB(j,i,rgb);
+                //bi.setRGB(j,i,rgb);
+                (bi.get_pixels())[j*i] = rgb;
         	}
         }
 	       
         // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUITA
-        File outputfileV = new File(fileV+"."+file_format);
-        ImageIO.write(bi, file_format, outputfileV);
-        
+        //File outputfileV = GLib.File.new_for_path(fileV.concat(".").concat(file_format));
+        //ImageIO.write(bi, file_format, outputfileV);
+        bi.save(fileV.concat(".").concat(file_format),"bmp");
         
         
 		//////////////////////////////////////////////////////////////////////////
@@ -320,7 +347,7 @@ public class Scrambling : Object
 		///// CREO IL FILE JSON CON LE EVENTUALI ROI CALCOLATE SULL'IMMAGINE /////
 		//////////////////////////////////////////////////////////////////////////
         
-        FileOutputStream xml_roi = new FileOutputStream(path+"~ROI.json");
+        FileOutputStream xml_roi = new FileOutputStream(path.concat("~ROI.json"));
         PrintStream scrivi_xml = new PrintStream(xml_roi);
         scrivi_xml.print("{\""+n_frame+"\":[");
         int cont_t = 0;
