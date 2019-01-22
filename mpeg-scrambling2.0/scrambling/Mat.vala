@@ -16,6 +16,12 @@ namespace geometry
             nativeObj = addr;
         }
 
+        public Mat.multi(int rows, int cols, int type)
+        {
+            nativeObj = n_Mat2(rows, cols, type);
+            return;
+        }
+
         public long total()
         {
             long retVal = n_total(nativeObj);
@@ -63,6 +69,9 @@ namespace geometry
 
          // C++: Mat::Mat()
         private static extern long n_Mat();
+
+        // C++: Mat::Mat(int rows, int cols, int type)
+        private static extern long n_Mat2(int rows, int cols, int type);
 
         // C++: size_t Mat::total()
         private static extern long n_total(long nativeObj);
