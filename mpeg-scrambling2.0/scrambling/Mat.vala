@@ -11,8 +11,8 @@ namespace geometry
 
         public Mat.addr(long addr)
         {
-            /* if (addr == 0)
-                throw new java.lang.UnsupportedOperationException("Native object address is NULL");*/
+            /* *if (addr == 0)
+                throw new Error("Native object address is NULL");*/
             nativeObj = addr;
         }
 
@@ -27,6 +27,40 @@ namespace geometry
             return nGetI(nativeObj, row, col, data.length, data);
         }
 
+        public int put(int row, int col, int[] data)
+        {
+            int t = type();
+            if (depth(t) == 4) 
+            {
+                return nPutI(nativeObj, row, col, data.length, data);
+            }
+            return -1;
+            //throw Error("Mat data type is not compatible: ".concat(t.to_string()));
+        }
+
+        public int type()
+        {
+            int retVal = n_type(nativeObj);
+            return retVal;
+        }
+
+        public static int depth(int type) 
+        {
+            return type & ((1 << 3) - 1);
+        }
+    
+
+        public static int channels(int type) 
+        {
+            return (type >> 3) + 1;
+        }
+
+        public void create(int rows, int cols, int type)
+        {
+            n_create(nativeObj, rows, cols, type);
+            return;
+        }
+
          // C++: Mat::Mat()
         private static extern long n_Mat();
 
@@ -34,5 +68,13 @@ namespace geometry
         private static extern long n_total(long nativeObj);
 
         private static extern int nGetI(long self, int row, int col, int count, int[] vals);
+
+        private static extern int nPutI(long self, int row, int col, int count, int[] data);
+
+        // C++: int Mat::type()
+        private static extern int n_type(long nativeObj);
+
+        // C++: void Mat::create(int rows, int cols, int type)
+        private static extern void n_create(long nativeObj, int rows, int cols, int type);
     }
 }
