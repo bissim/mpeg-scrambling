@@ -126,14 +126,14 @@ public class Scrambling : Object
         		int a = matrix[i][j];
                 if(a <= 255 && a >= 0)
                 {
-            		rgb = new geometry.Color(a,a,a).getRGB();
+            		rgb = new geometry.Color(a,a,a).getRGB();   //controlla!!
                 }
                 else
                 {
-            		rgb = new geometry.Color(0,0,0).getRGB();
+            		rgb = new geometry.Color(0,0,0).getRGB();  //controlla!!
             	}
         		
-            	biY.setRGB(j,i,rgb);
+            	biY.setRGB(j,i,rgb);           //controlla!!
         	}
         }
 	      
@@ -141,13 +141,13 @@ public class Scrambling : Object
         // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
         /////////////////////////////////////////////////////////
         
-        File outputfileY = new File(fileY+"."+file_format);
-        ImageIO.write(biY, file_format, outputfileY);
+        GLib.File outputfileY = GLib.File.new_for_path(fileY.concat(".").concat(file_format));
+        ImageIO.write(biY, file_format, outputfileY);    //controlla!!
         
         
 		////////////////////////////////////////////////////////////////////////////////
 		///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
-		///////////// CONTENENTE IL FRAME U ////////////////////////////////////////////
+		//////////////////////////CONTENENTE IL FRAME U ////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////
         
         bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
@@ -375,62 +375,76 @@ public class Scrambling : Object
 }
 
 
-class Support{
+class Support : Object
+{
 
-/**
- * Questo metodo verifica la presenza di risultati duplicati (più strategie trovano la stessa faccia)
- * o di risultati che si intersecano fra loro (facce vicine fra loro). Nel primo caso viene eliminato
- * un risultato, nel secondo caso viene creato un nuovo rettangolo che sia l'unione dei due.
- * @param rects lista dei volti trovati dalle strategie con duplicati
- * @return List<Rectangle> lista dei volti senza duplicati
- */
-static public List<Rectangle> checkOverlapResult(List<Rectangle> rects) {
-    boolean overlap = true;
-    while(overlap) {
-        overlap=false;
-        try {
-            for (int i = 0; i < rects.size(); i++) {
-                for (int j = 0; j < rects.size(); j++) {
-                    if (i == j) continue;
-                    if (rects.get(i).contains(rects.get(j))) {
-                        rects.remove(j);
-                        overlap = true;
-                        j--;
-                        if (i == rects.size()) i--;
-                    }
-
-                }
-            }
-            for (int i = 0; i < rects.size(); i++) {
-                for (int j = 0; j < rects.size(); j++) {
-                    if (i == j) continue;
-                    if (overlaps(rects.get(i), rects.get(j))) {
-                        java.awt.Rectangle r = rects.get(i).union(rects.get(j));
-                        rects.remove(i);
-                        rects.add(i, r);
-                        rects.remove(j);
-                        overlap = true;
-                        j--;
+    /**
+     * Questo metodo verifica la presenza di risultati duplicati (più strategie trovano la stessa faccia)
+     * o di risultati che si intersecano fra loro (facce vicine fra loro). Nel primo caso viene eliminato
+     * un risultato, nel secondo caso viene creato un nuovo rettangolo che sia l'unione dei due.
+     * @param rects lista dei volti trovati dalle strategie con duplicati
+     * @return List<Rectangle> lista dei volti senza duplicati
+     */
+    static public Gee.List<geometry.Rectangle> checkOverlapResult(Gee.List<geometry.Rectangle> rects) 
+    {
+        bool overlap = true;
+        while(overlap) 
+        {
+            overlap=false;
+            try 
+            {
+                for (int i = 0; i < rects.size; i++) 
+                {
+                    for (int j = 0; j < rects.size; j++) 
+                    {
+                        if (i == j) continue;
+                        if (rects.get(i).contains(rects.get(j))) 
+                        {
+                            rects.remove_at(j);
+                            overlap = true;
+                            j--;
+                            if (i == rects.size i--;
+                        }
 
                     }
-
                 }
+                for (int i = 0; i < rects.size; i++) 
+                {
+                    for (int j = 0; j < rects.size; j++) 
+                    {
+                        if (i == j) continue;
+                        if (overlaps(rects.get(i), rects.get(j))) 
+                        {
+                            geometry.Rectangle r = rects.get(i).union(rects.get(j));
+                            rects.remove_at(i);
+                            rects.insert(i, r);
+                            rects.remove_at(j);
+                            overlap = true;
+                            j--;
+
+                        }
+
+                    }
+                }
+            } 
+            catch (Error e) 
+            {
+
             }
-        } catch (Exception e) {
         }
+        return rects;
     }
-    return rects;
-}
 
-/**
- * Questo metodo controlla se due rettangoli si intersecano fra loro
- * @param r1 Primo rettangolo
- * @param r2 Secondo rettangolo
- * @return true se r1 interseca r2, false altrimenti
- */
-private static boolean overlaps (Rectangle r1, Rectangle r2) {
-    return r2.x < r1.x + r1.width && r2.x + r2.width > r1.x && r2.y < r1.y + r1.height && r2.y + r2.height > r1.y;
-}
+    /**
+     * Questo metodo controlla se due rettangoli si intersecano fra loro
+     * @param r1 Primo rettangolo
+     * @param r2 Secondo rettangolo
+     * @return true se r1 interseca r2, false altrimenti
+     */
+    private static bool overlaps (geometry.Rectangle r1, geometry.Rectangle r2) 
+    {
+        return r2.x < r1.x + r1.width && r2.x + r2.width > r1.x && r2.y < r1.y + r1.height && r2.y + r2.height > r1.y;
+    }
 
 }
 
