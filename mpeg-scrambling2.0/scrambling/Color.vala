@@ -2,14 +2,14 @@ namespace geometry
 { 
     public class Color : Object
     {
-        int value;
+        public int value;
 
         public Color(int r, int g, int b) 
         {
-            Color.four(r, g, b, 255);
+            Colorf(r, g, b, 255);
         }
 
-        public Color.four(int r, int g, int b, int a) 
+        public void Colorf(int r, int g, int b, int a) 
         {
             value = ((a & 0xFF) << 24) |
                     ((r & 0xFF) << 16) |
@@ -40,7 +40,7 @@ namespace geometry
                 badComponentString = badComponentString.concat(" Blue");
             }
             if ( rangeError == true ) {
-            throw new Error IllegalArgumentException("Color parameter outside of expected range:".concat(badComponentString));
+                stderr.printf("Color parameter outside of expected range:".concat(badComponentString));
             }
         }
 
