@@ -1,29 +1,3 @@
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfRect;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
-
-import com.facedetect.FaceDetector;
-import com.facedetect.strategies.OpenCVFaceDetector;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.StringTokenizer;
-
 using OpenCV;
 using geometry;
 using GLib;
@@ -31,6 +5,7 @@ using Gee;
 using imgcodecs;
 using classifier;
 using Gdk;
+using imgproc;
 
 public class Scrambling : Object 
 {
@@ -300,7 +275,7 @@ public class Scrambling : Object
 		// APPLICO LO SCRAMBLING SULLA LUMINANZA DEL FRAME PER CALCOLARE LE ROI //
 		//////////////////////////////////////////////////////////////////////////
            
-        ArrayList<String> strategies = new ArrayList<String>();
+        Gee.ArrayList<string> strategies = new Gee.ArrayList<string>();
         strategies.add("xml/lbpcascade_frontalface.xml");
         strategies.add("xml/lbpcascade_frontalcatface.xml");
         strategies.add("xml/lbpcascade_frontalface_improved.xml");
@@ -312,31 +287,35 @@ public class Scrambling : Object
         
         
         // DEFINISCO LA STRATEGIA DI RICERCA
-        Mat image = Imgcodecs.imread(outputfileY.getAbsolutePath(), Imgcodecs.IMREAD_COLOR);
+        geometry.Mat image = imgcodecs.Imgcodecs.imread(outputfileY.getAbsolutePath(), impgcodecs.Imgcodecs.IMREAD_COLOR);
         
-        if(image.empty()) {
-        	System.out.println("Immagine non caricata!");
+        if(image.empty())    //implementa antonio
+        {
+        	stdout.printf("Immagine non caricata!");
         	return;
         }
         
-        List<MatOfPoint> pts = new ArrayList<MatOfPoint>();
-        CascadeClassifier faceDetector;
-        List<Rectangle> rettangoli = new ArrayList<Rectangle>();
+        Gee.List<geometry.MatOfPoint> pts = new Gee.ArrayList<geometry.MatOfPoint>();
+        classifier.CascadeClassifier faceDetector;
+        Gee.List<Geometry.Rectangle> rettangoli = new Gee.ArrayList<geometry.Rectangle>();
         
         int faces = 0;
-        for(String strategy : strategies) {
+        foreach(string strategy in strategies) 
+        {
         	
-        	faceDetector = new CascadeClassifier(strategy);
+        	faceDetector = new classifier.CascadeClassifier(strategy);   //implementa antonio
         	
-	        MatOfRect faceVectors = new MatOfRect();
+	        geometry.MatOfRect faceVectors = new geometry.MatOfRect();
 	        faceDetector.detectMultiScale(image, faceVectors);
 	
-	        if(faceVectors.toArray().length > faces) {
+            if(faceVectors.toArray().length > faces) 
+            {
 	        	faces = faceVectors.toArray().length;
 	        }
 		
-	        for(Rect rect : faceVectors.toArray()) {
-	        	rettangoli.add(new Rectangle(rect.x, rect.y, rect.width, rect.height));
+            foreach(geometry.Rect rect in faceVectors.toArray()) 
+            {
+	        	rettangoli.add(new geometry.Rectangle.withBounds(rect.x, rect.y, rect.width, rect.height));
 	        }
 	        
 	        rettangoli = Support.checkOverlapResult(rettangoli);
@@ -347,21 +326,22 @@ public class Scrambling : Object
 		///// CREO IL FILE JSON CON LE EVENTUALI ROI CALCOLATE SULL'IMMAGINE /////
 		//////////////////////////////////////////////////////////////////////////
         
-        FileOutputStream xml_roi = new FileOutputStream(path.concat("~ROI.json"));
-        PrintStream scrivi_xml = new PrintStream(xml_roi);
+        FileOutputStream xml_roi = new FileOutputStream(path.concat("~ROI.json"));      //controllaaa
+        PrintStream scrivi_xml = new PrintStream(xml_roi);                              //controllaa
         scrivi_xml.print("{\""+n_frame+"\":[");
         int cont_t = 0;
         
         // CONVERTO LE SEZIONI INVIDIDUATE IN QUADRATI E LI SOVRASCRIVO ALL'IMMAGINE
-        for (Rectangle rect : rettangoli) {
+        foreach (geometry.Rectangle rect in rettangoli) 
+        {
         	
-        	Point[] rook_points = new Point[4];
-            rook_points[0]  = new Point(rect.x,rect.y);
-            rook_points[1]  = new Point(rect.x + rect.width, rect.y);
-            rook_points[2]  = new Point(rect.x + rect.width, rect.y + rect.height);
-            rook_points[3]  = new Point(rect.x, rect.y + rect.height);
+        	geometry.Point[] rook_points = new geometry.Point[4];
+            rook_points[0]  = new geometry.Point(rect.x,rect.y);
+            rook_points[1]  = new geometry.Point(rect.x + rect.width, rect.y);
+            rook_points[2]  = new geometry.Point(rect.x + rect.width, rect.y + rect.height);
+            rook_points[3]  = new geometry.Point(rect.x, rect.y + rect.height);
             
-            MatOfPoint matPt = new MatOfPoint();
+            geometry.MatOfPoint matPt = new geometry.MatOfPoint();
             matPt.fromArray(rook_points);
             
             pts.add(matPt);
@@ -377,24 +357,24 @@ public class Scrambling : Object
         
         
         // SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
-        Point[] rook_points2 = new Point[4];
-        rook_points2[0]  = new Point(0,0);
-        rook_points2[1]  = new Point(w,0);
-        rook_points2[2]  = new Point(w,h);
-        rook_points2[3]  = new Point(0,h);
-        MatOfPoint matPt2 = new MatOfPoint();
+        geometry.Point[] rook_points2 = new geometry.Point[4];
+        rook_points2[0]  = new geometry.Point(0,0);
+        rook_points2[1]  = new geometry.Point(w,0);
+        rook_points2[2]  = new geometry.Point(w,h);
+        rook_points2[3]  = new geometry.Point(0,h);
+        geometry.MatOfPoint matPt2 = new geometry.MatOfPoint();
         matPt2.fromArray(rook_points2);
         
-        List<MatOfPoint> pts2 = new ArrayList<MatOfPoint>();
+        Gee.List<geometry.MatOfPoint> pts2 = new Gee.ArrayList<geometry.MatOfPoint>();
         pts2.add(matPt2);
-        Imgproc.fillPoly(image,pts2,new Scalar(255,255,255));
+        imgproc.Imgproc.fillPoly(image,pts2,new geometry.Scalar(255,255,255));
         
-        Imgproc.fillPoly(image,pts,new Scalar(0,0,0));
-        Imgcodecs.imwrite(fileY+"_scramb."+file_format, image);
+        imgproc.Imgproc.fillPoly(image,pts,new geometry.Scalar(0,0,0));
+        imgcodecs.Imgcodecs.imwrite(fileY+"_scramb."+file_format, image);
         
         
-        System.out.println("Ultimate scrambling frame: "+n_frame);
-        System.out.println("***** FACCE TROVATE: "+faces+" *****");
+        stdout.printf("Ultimate scrambling frame: %s",n_frame);
+        stdout.printf("***** FACCE TROVATE: ".concat(faces).concat(" *****"));
         
         return;
 	}
