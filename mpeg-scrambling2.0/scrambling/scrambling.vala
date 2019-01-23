@@ -10,7 +10,7 @@ using imgproc;
 public class Scrambling : Object 
 {
 
-    public static int main(string[] args) //throws Error 
+    public static int run(string[] args) //throws Error 
     {
         if(args.length != 4)
         {
