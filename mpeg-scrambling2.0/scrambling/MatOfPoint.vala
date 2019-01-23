@@ -19,10 +19,10 @@ namespace geometry
         public static int makeType(int depth, int channels) 
         {
             if (channels <= 0 || channels >= 512) {
-                //throw new Error("Channels count should be 1..".concat((512 - 1));
+                stderr.printf("Channels count should be 1..%d",(512 - 1));
             }
             if (depth < 0 || depth >= (1 << 3)) {
-                //throw new Error("Data type depth should be 0..".concat(((1 << 3) - 1));
+                stderr.printf("Data type depth should be 0..%d",((1 << 3) - 1));
             }
             return (depth & ((1 << 3) - 1)) + ((channels - 1) << 3);
         }
