@@ -10,11 +10,12 @@ using imgproc;
 public class Scrambling : Object 
 {
 
-    public static int main(string[] args) throws Error 
+    public static int main(string[] args) //throws Error 
     {
         if(args.length != 4)
         {
-			throw new Error("Passaggio dei parametri non corretto!");
+            stderr.printf("Passaggio dei parametri non corretto!");
+            return -1;
 		}
 		
 		int w = 0;
@@ -42,7 +43,7 @@ public class Scrambling : Object
 		Gdk.Pixbuf bi;                  
 		GLib.Scanner input;
         int i,j, block, block_i, block_j, count;
-        int [][] matrix;
+        int [,] matrix;
 		
 		////////////////////////////////////////////////////////////////////////////////
 		///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
@@ -50,11 +51,12 @@ public class Scrambling : Object
 		////////////////////////////////////////////////////////////////////////////////
 		
 		biY = new Gdk.Pixbuf.from_file_at_size(fileY.concat(".").concat(file_format), w, h); //controllare!!!
-        input = new GLib.Scanner();    
-        input.input_file(GLib.File.new_for_path(fileY));
+        input = new GLib.Scanner(ScannerConfig());
+        GLib.File inputF = GLib.File.new_for_path(fileY);     
+        input.input_file(inputF);
         i = 0;
         j = 0;
-        matrix = new int[h][w];
+        matrix = new int[h,w];
         block = 0;
         block_i = 0;
         block_j = 0;
@@ -67,7 +69,7 @@ public class Scrambling : Object
             while (k < st.length)
             {
         		int a = int.parse(st[k]);
-        		matrix[i+block_i][j+block_j] = a;
+        		matrix[i+block_i , j+block_j] = a;
                 j++;
                 k++;
             }
@@ -100,7 +102,7 @@ public class Scrambling : Object
         {
             for(j = 0;j < w;j++) 
             {
-        		int a = matrix[i][j];
+        		int a = matrix[i,j];
                 if(a <= 255 && a >= 0)
                 {
             		rgb = (new geometry.Color(a,a,a)).getRGB();   //controlla!!
@@ -127,11 +129,11 @@ public class Scrambling : Object
 		////////////////////////////////////////////////////////////////////////////////
         
         bi = new Gdk.Pixbuf.from_file_at_size(fileU.concat(".").concat(file_format), w/2, h/2);
-        input = new GLib.Scanner()
+        input = new GLib.Scanner(ScannerConfig());
         input.input_file(GLib.File.new_for_path(fileU));
         i = 0;
         j = 0;
-        matrix = new int[h/2][w/2];
+        matrix = new int[h/2,w/2];
         block = 0;
         block_i = 0;
         block_j = 0;
@@ -142,8 +144,8 @@ public class Scrambling : Object
         	int k = 0;
             while (k < st.length)
             {
-        		int a = int.parse(st[k]]);
-        		matrix[i+block_i][j+block_j] = a;
+        		int a = int.parse(st[k]);
+        		matrix[i+block_i , j+block_j] = a;
                 j++;
                 k++;
             }
@@ -175,7 +177,7 @@ public class Scrambling : Object
         {
             for(j = 0;j < w/2;j++) 
             {
-        		int a = matrix[i][j];
+        		int a = matrix[i,j];
         		rgb = (new geometry.Color(a,a,a)).getRGB();
                 (bi.get_pixels())[j*i] = rgb;
         	}
@@ -195,11 +197,11 @@ public class Scrambling : Object
         
         
         bi = new Gdk.Pixbuf.from_file_at_size(fileV.concat(".").concat(file_format), w/2, h/2);
-        input = new GLib.Scanner()
+        input = new GLib.Scanner(ScannerConfig());
         input.input_file(GLib.File.new_for_path(fileV));
         i = 0;
         j = 0;
-        matrix = new int[h/2][w/2];
+        matrix = new int[h/2,w/2];
         block = 0;
         block_i = 0;
         block_j = 0;
@@ -211,10 +213,10 @@ public class Scrambling : Object
         	int k = 0;
             while (k < st.length)
             {
-        		int a = Integer.parseInt(st.nextToken());
-        		matrix[i+block_i][j+block_j] = a;
+        		int a = int.parse(st.nextToken());
+        		matrix[i+block_i , j+block_j] = a;
                 j++;
-                k++
+                k++;
             }
         	
         	i++;
@@ -244,7 +246,7 @@ public class Scrambling : Object
         {
             for(j = 0;j < w/2;j++) 
             {
-        		int a = matrix[i][j];
+        		int a = matrix[i,j];
                 if(a <= 255 && a >= 0)
                 {
             		rgb = (new geometry.Color(a,a,a)).getRGB();
@@ -279,17 +281,17 @@ public class Scrambling : Object
         
         
         // DEFINISCO LA STRATEGIA DI RICERCA
-        geometry.Mat image = imgcodecs.Imgcodecs.imread(outputfileY.getAbsolutePath(), impgcodecs.Imgcodecs.IMREAD_COLOR);
+        geometry.Mat image = imgcodecs.Imgcodecs.imread(fileY.concat(".").concat(file_format), imgcodecs.Imgcodecs.IMREAD_COLOR);
         
         if(image.empty())    
         {
         	stdout.printf("Immagine non caricata!");
-        	return;
+        	return -1;
         }
         
         Gee.List<geometry.MatOfPoint> pts = new Gee.ArrayList<geometry.MatOfPoint>();
         classifier.CascadeClassifier faceDetector;
-        Gee.List<Geometry.Rectangle> rettangoli = new Gee.ArrayList<geometry.Rectangle>();
+        Gee.List<geometry.Rectangle> rettangoli = new Gee.ArrayList<geometry.Rectangle>();
         
         int faces = 0;
         foreach(string strategy in strategies) 
@@ -305,7 +307,7 @@ public class Scrambling : Object
 	        	faces = faceVectors.toArray().length;
 	        }
 		
-            foreach(geometry.Rect rect in faceVectors.toArray()) 
+            foreach(geometry.Rectangle rect in faceVectors.toArray()) 
             {
 	        	rettangoli.add(new geometry.Rectangle.withBounds(rect.x, rect.y, rect.width, rect.height));
 	        }
@@ -319,10 +321,12 @@ public class Scrambling : Object
 		//////////////////////////////////////////////////////////////////////////
         
         File roifile = File.new_for_path(path.concat("~ROI.json"));
-        FIleIOStream ios = roifile.create_readwrite(FileCreateFlags.PRIVATE);
-        size_t bytes_written;
-        FileOutputStream roiprintable = ios.output_stream as FileOutputStream;     //valutare dataoutputstram
-        roiprintable.write_all("{\"".concat(n_frame).concat("\":["));
+        FileIOStream ios = roifile.create_readwrite(FileCreateFlags.PRIVATE);
+
+        FileOutputStream os = ios.output_stream as FileOutputStream;
+        DataOutputStream roiprintable = new DataOutputStream (os);
+        roiprintable.put_string("{\"" + n_frame + "\":[");
+
         int cont_t = 0;
 
         
@@ -341,15 +345,15 @@ public class Scrambling : Object
             
             pts.add(matPt);
             
-            if(cont_t == rettangoli.size()-1)
-                roiprintable.write_all("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
+            if(cont_t == rettangoli.size -1)
+                roiprintable.put_string("{\"x\":".concat(rect.x.to_string()).concat(",\"y\":").concat(rect.y.to_string()).concat(",\"w\":").concat(rect.width.to_string()).concat(",\"h\":").concat(rect.height.to_string()).concat("}"));
                 
             else
-                roiprintable.write_all("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
+                roiprintable.put_string("{\"x\":".concat(rect.x.to_string()).concat(",\"y\":").concat(rect.y.to_string()).concat(",\"w\":").concat(rect.width.to_string()).concat(",\"h\":").concat(rect.height.to_string()).concat("}"));
             cont_t++;
             
         }
-        roiprintable.write_all("]}");
+        roiprintable.put_string("]}");
         
         
         // SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
@@ -366,13 +370,13 @@ public class Scrambling : Object
         imgproc.Imgproc.fillPoly(image,pts2,new geometry.Scalar(255,255,255));
         
         imgproc.Imgproc.fillPoly(image,pts,new geometry.Scalar(0,0,0));
-        imgcodecs.Imgcodecs.imwrite(fileY.concat("_scramb.").concat(file_format, image));
+        imgcodecs.Imgcodecs.imwrite(fileY.concat("_scramb.").concat(file_format), image);
         
         
         stdout.printf("Ultimate scrambling frame: %s",n_frame);
-        stdout.printf("***** FACCE TROVATE: ".concat(faces).concat(" *****"));
+        stdout.printf("***** FACCE TROVATE: ".concat(faces.to_string()).concat(" *****"));
         
-        return;
+        return 0;
 	}
 
 }
@@ -388,7 +392,7 @@ class Support : Object
      * @param rects lista dei volti trovati dalle strategie con duplicati
      * @return List<Rectangle> lista dei volti senza duplicati
      */
-    static public Gee.List<geometry.Rectangle> checkOverlapResult(Gee.List<geometry.Rectangle> rects) 
+    public static Gee.List<geometry.Rectangle> checkOverlapResult(Gee.List<geometry.Rectangle> rects) 
     {
         bool overlap = true;
         while(overlap) 
