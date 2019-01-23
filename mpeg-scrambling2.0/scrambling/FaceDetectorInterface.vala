@@ -1,3 +1,5 @@
+using Gee;
+
 namespace com.facedetect
 {
 
