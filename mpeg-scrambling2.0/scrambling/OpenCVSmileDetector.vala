@@ -61,7 +61,7 @@ namespace com.facedetect.strategies
 		
             if (cancellable.is_cancelled ()) 
             {
-				throw new IOError.CANCELLED ("Operation was cancelled");
+				stderr.printf("Operation was cancelled");
             }
             
             return filePaths;
