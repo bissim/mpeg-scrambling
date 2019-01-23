@@ -67,6 +67,12 @@ namespace geometry
             return;
         }
 
+        public bool empty()
+        {
+            bool retVal = n_empty(nativeObj);
+            return retVal;
+        }
+
          // C++: Mat::Mat()
         private static extern long n_Mat();
 
@@ -85,5 +91,8 @@ namespace geometry
 
         // C++: void Mat::create(int rows, int cols, int type)
         private static extern void n_create(long nativeObj, int rows, int cols, int type);
+
+        // C++: bool Mat::empty()
+        private static extern bool n_empty(long nativeObj);
     }
 }
