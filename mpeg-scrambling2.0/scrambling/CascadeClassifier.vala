@@ -1,4 +1,3 @@
-using OpenCV;
 using geometry;
 
 namespace classifier 
@@ -14,6 +13,12 @@ namespace classifier
             return;
         }
 
+        public CascadeClassifier.s(string filename)
+        {
+            nativeObj = CascadeClassifier_0(filename);
+            return;
+        }
+
         public bool load(string filename)
         {
             bool retVal = load_0(nativeObj, filename);
@@ -26,6 +31,9 @@ namespace classifier
             detectMultiScale_1(nativeObj, image.nativeObj, objects_mat.nativeObj);
             return;
         }
+
+        // C++:   CascadeClassifier(String filename)
+        private static extern long CascadeClassifier_0(string filename);
 
         // C++:   CascadeClassifier()
         private static extern long CascadeClassifier_1();
