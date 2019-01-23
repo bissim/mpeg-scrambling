@@ -11,8 +11,8 @@ namespace geometry
 
         public Mat.addr(long addr)
         {
-            /* *if (addr == 0)
-                throw new Error("Native object address is NULL");*/
+            if (addr == 0)
+                stderr.printf("Native object address is NULL");
             nativeObj = addr;
         }
 
