@@ -29,9 +29,9 @@ public class Scrambling : Object
 		
 		string n_frame = args[3];
 	
-		string fileY = path+"~Y.txt";
-		string fileU = path+"~U.txt";
-		string fileV = path+"~V.txt";
+		string fileY = path.concat("~Y.txt");
+		string fileU = path.concat("~U.txt");
+		string fileV = path.concat("~V.txt");
 			
 		stdout.printf("Scrambling...  frame: %s",n_frame);
 		stdout.printf("Apro il file %s",fileY);
@@ -289,7 +289,7 @@ public class Scrambling : Object
         // DEFINISCO LA STRATEGIA DI RICERCA
         geometry.Mat image = imgcodecs.Imgcodecs.imread(outputfileY.getAbsolutePath(), impgcodecs.Imgcodecs.IMREAD_COLOR);
         
-        if(image.empty())    //implementa antonio
+        if(image.empty())    
         {
         	stdout.printf("Immagine non caricata!");
         	return;
@@ -303,7 +303,7 @@ public class Scrambling : Object
         foreach(string strategy in strategies) 
         {
         	
-        	faceDetector = new classifier.CascadeClassifier(strategy);   //implementa antonio
+        	faceDetector = new classifier.CascadeClassifier.s(strategy);   
         	
 	        geometry.MatOfRect faceVectors = new geometry.MatOfRect();
 	        faceDetector.detectMultiScale(image, faceVectors);
@@ -328,7 +328,7 @@ public class Scrambling : Object
         
         FileOutputStream xml_roi = new FileOutputStream(path.concat("~ROI.json"));      //controllaaa
         PrintStream scrivi_xml = new PrintStream(xml_roi);                              //controllaa
-        scrivi_xml.print("{\""+n_frame+"\":[");
+        scrivi_xml.print("{\"".concat(n_frame).concat("\":["));
         int cont_t = 0;
         
         // CONVERTO LE SEZIONI INVIDIDUATE IN QUADRATI E LI SOVRASCRIVO ALL'IMMAGINE
@@ -347,9 +347,9 @@ public class Scrambling : Object
             pts.add(matPt);
             
             if(cont_t == rettangoli.size()-1)
-            	scrivi_xml.print("{\"x\":"+rect.getX()+",\"y\":"+rect.getY()+",\"w\":"+rect.getWidth()+",\"h\":"+rect.getHeight()+"}");
+            	scrivi_xml.print("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
             else
-            	scrivi_xml.print("{\"x\":"+rect.getX()+",\"y\":"+rect.getY()+",\"w\":"+rect.getWidth()+",\"h\":"+rect.getHeight()+"},");
+                scrivi_xml.print("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
             cont_t++;
             
         }
@@ -370,7 +370,7 @@ public class Scrambling : Object
         imgproc.Imgproc.fillPoly(image,pts2,new geometry.Scalar(255,255,255));
         
         imgproc.Imgproc.fillPoly(image,pts,new geometry.Scalar(0,0,0));
-        imgcodecs.Imgcodecs.imwrite(fileY+"_scramb."+file_format, image);
+        imgcodecs.Imgcodecs.imwrite(fileY.concat("_scramb.").concat(file_format, image));
         
         
         stdout.printf("Ultimate scrambling frame: %s",n_frame);
@@ -410,7 +410,7 @@ class Support : Object
                             rects.remove_at(j);
                             overlap = true;
                             j--;
-                            if (i == rects.size i--;
+                            if (i == rects.size) i--;
                         }
 
                     }
