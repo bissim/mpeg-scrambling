@@ -50,10 +50,12 @@ public class Scrambling : Object
 		///////////// //////////////CONTENENTE IL FRAME Y //////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////
 		
-		biY = new Gdk.Pixbuf.from_file_at_size(fileY.concat(".").concat(file_format), w, h); //controllare!!!
-        input = new GLib.Scanner(ScannerConfig());
-        GLib.File inputF = GLib.File.new_for_path(fileY);     
-        input.input_file(inputF);
+        biY = new Gdk.Pixbuf.from_file_at_size(fileY.concat(".").concat(file_format), w, h); //controllare!!!
+        GLib.File inputFileY = GLib.File.new_for_path(fileY);     
+        FileIOStream ioFileY = inputFileY.create_readwrite(FileCreateFlags.PRIVATE);
+        FileInputStream @isY = ioFileY.input_stream as FileInputStream;
+        DataInputStream disY = new DataInputStream(@isY);
+
         i = 0;
         j = 0;
         matrix = new int[h,w];
@@ -62,9 +64,9 @@ public class Scrambling : Object
         block_j = 0;
         count = 0;
         string line;
-        while(!input.eof()) 
+        while((line = disY.read_line()) != null) 
         {
-            string st[] = string.split(input.get_next_token(),0);   //controllare se prende una  riga. 
+            string st[] = line.split(",",0);   //controllare se prende una  riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -112,7 +114,7 @@ public class Scrambling : Object
             		rgb = (new geometry.Color(0,0,0)).getRGB();  //controlla!!
             	}
         	
-                (biY.get_pixels())[j*i] = rgb;   //controllare!!!!
+                (biY.get_pixels())[j*i] = (uint8) rgb;   //controllare!!!!
         	}
         }
 	      
@@ -129,8 +131,14 @@ public class Scrambling : Object
 		////////////////////////////////////////////////////////////////////////////////
         
         bi = new Gdk.Pixbuf.from_file_at_size(fileU.concat(".").concat(file_format), w/2, h/2);
-        input = new GLib.Scanner(ScannerConfig());
-        input.input_file(GLib.File.new_for_path(fileU));
+        //  input = new GLib.Scanner(ScannerConfig());
+        //  input.input_file(GLib.File.new_for_path(fileU));
+
+        GLib.File inputFileU = GLib.File.new_for_path(fileU);     
+        FileIOStream ioFileU = inputFileU.create_readwrite(FileCreateFlags.PRIVATE);
+        FileInputStream @isU = ioFileU.input_stream as FileInputStream;
+        DataInputStream disU = new DataInputStream(@isU);
+
         i = 0;
         j = 0;
         matrix = new int[h/2,w/2];
@@ -139,8 +147,9 @@ public class Scrambling : Object
         block_j = 0;
         count = 0;
         
-        while(!input.eof()) {
-        	string st[] = string.split(input.get_next_token(),0);   //controllare se prende una riga. 
+        while((line = disU.read_line()) != null) 
+        {
+            string st[] = line.split(",",0);   //controllare se prende una  riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -179,7 +188,7 @@ public class Scrambling : Object
             {
         		int a = matrix[i,j];
         		rgb = (new geometry.Color(a,a,a)).getRGB();
-                (bi.get_pixels())[j*i] = rgb;
+                (bi.get_pixels())[j*i] = (uint8) rgb;
         	}
         }
 	       
@@ -197,8 +206,14 @@ public class Scrambling : Object
         
         
         bi = new Gdk.Pixbuf.from_file_at_size(fileV.concat(".").concat(file_format), w/2, h/2);
-        input = new GLib.Scanner(ScannerConfig());
-        input.input_file(GLib.File.new_for_path(fileV));
+        //  input = new GLib.Scanner(ScannerConfig());
+        //  input.input_file(GLib.File.new_for_path(fileV));
+
+        GLib.File inputFileV = GLib.File.new_for_path(fileV);     
+        FileIOStream ioFileV = inputFileV.create_readwrite(FileCreateFlags.PRIVATE);
+        FileInputStream @isV = ioFileV.input_stream as FileInputStream;
+        DataInputStream disV = new DataInputStream(@isV);
+
         i = 0;
         j = 0;
         matrix = new int[h/2,w/2];
@@ -206,14 +221,14 @@ public class Scrambling : Object
         block_i = 0;
         block_j = 0;
         count = 0;
-        
-        while(!input.eof()) 
+
+        while((line = disV.read_line()) != null) 
         {
-        	string st[] = string.split(input.get_next_token(),0);   //controllare se prende riga. 
+            string st[] = line.split(",",0);   //controllare se prende una  riga.  
         	int k = 0;
             while (k < st.length)
             {
-        		int a = int.parse(st.nextToken());
+        		int a = int.parse(st[k]);
         		matrix[i+block_i , j+block_j] = a;
                 j++;
                 k++;
@@ -256,7 +271,7 @@ public class Scrambling : Object
             		rgb = (new geometry.Color(0,0,0)).getRGB();
                 }
                 
-                (bi.get_pixels())[j*i] = rgb;
+                (bi.get_pixels())[j*i] = (uint8) rgb;
         	}
         }
 	       
@@ -281,7 +296,7 @@ public class Scrambling : Object
         
         
         // DEFINISCO LA STRATEGIA DI RICERCA
-        geometry.Mat image = imgcodecs.Imgcodecs.imread(fileY.concat(".").concat(file_format), imgcodecs.Imgcodecs.IMREAD_COLOR);
+        geometry.Mat image = imgcodecs.Imgcodecs.imread2(fileY.concat(".").concat(file_format), imgcodecs.Imgcodecs.IMREAD_COLOR);
         
         if(image.empty())    
         {
