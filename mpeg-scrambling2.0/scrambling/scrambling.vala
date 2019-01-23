@@ -62,7 +62,7 @@ public class Scrambling : Object
         string line;
         while(!input.eof()) 
         {
-            string st[] = string.split(input.get_next_token(),0);   //controllare se è riga. 
+            string st[] = string.split(input.get_next_token(),0);   //controllare se prende una  riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -109,8 +109,7 @@ public class Scrambling : Object
                 {
             		rgb = (new geometry.Color(0,0,0)).getRGB();  //controlla!!
             	}
-        		
-                //biY.setRGB(j,i,rgb);           //controlla!!
+        	
                 (biY.get_pixels())[j*i] = rgb;   //controllare!!!!
         	}
         }
@@ -119,8 +118,6 @@ public class Scrambling : Object
         // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
         /////////////////////////////////////////////////////////
         
-        //GLib.File outputfileY = GLib.File.new_for_path(fileY.concat(".").concat(file_format));  //creazione file immagine output, controllare!!!
-        //ImageIO.write(biY, file_format, outputfileY);    //controlla!!
         biY.save(fileY.concat(".").concat(file_format),"bmp");
         
         
@@ -141,7 +138,7 @@ public class Scrambling : Object
         count = 0;
         
         while(!input.eof()) {
-        	string st[] = string.split(input.get_next_token(),0);   //controllare se è riga. 
+        	string st[] = string.split(input.get_next_token(),0);   //controllare se prende una riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -180,7 +177,6 @@ public class Scrambling : Object
             {
         		int a = matrix[i][j];
         		rgb = (new geometry.Color(a,a,a)).getRGB();
-                //bi.setRGB(j,i,rgb);
                 (bi.get_pixels())[j*i] = rgb;
         	}
         }
@@ -189,8 +185,6 @@ public class Scrambling : Object
 		// SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
 		/////////////////////////////////////////////////////////
         
-        //File outputfileU = GLib.File.new_for_path(fileU.concat(".").concat(file_format));
-        //ImageIO.write(bi, file_format, outputfileU);
         bi.save(fileU.concat(".").concat(file_format),"bmp");
         
        
@@ -213,7 +207,7 @@ public class Scrambling : Object
         
         while(!input.eof()) 
         {
-        	string st[] = string.split(input.get_next_token(),0);   //controllare se è riga. 
+        	string st[] = string.split(input.get_next_token(),0);   //controllare se prende riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -258,16 +252,14 @@ public class Scrambling : Object
                 else
                 {
             		rgb = (new geometry.Color(0,0,0)).getRGB();
-            	}
-        		
-                //bi.setRGB(j,i,rgb);
+                }
+                
                 (bi.get_pixels())[j*i] = rgb;
         	}
         }
 	       
         // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUITA
-        //File outputfileV = GLib.File.new_for_path(fileV.concat(".").concat(file_format));
-        //ImageIO.write(bi, file_format, outputfileV);
+        
         bi.save(fileV.concat(".").concat(file_format),"bmp");
         
         
@@ -326,10 +318,13 @@ public class Scrambling : Object
 		///// CREO IL FILE JSON CON LE EVENTUALI ROI CALCOLATE SULL'IMMAGINE /////
 		//////////////////////////////////////////////////////////////////////////
         
-        FileOutputStream xml_roi = new FileOutputStream(path.concat("~ROI.json"));      //controllaaa
-        PrintStream scrivi_xml = new PrintStream(xml_roi);                              //controllaa
-        scrivi_xml.print("{\"".concat(n_frame).concat("\":["));
+        File roifile = File.new_for_path(path.concat("~ROI.json"));
+        FIleIOStream ios = roifile.create_readwrite(FileCreateFlags.PRIVATE);
+        size_t bytes_written;
+        FileOutputStream roiprintable = ios.output_stream as FileOutputStream;     //valutare dataoutputstram
+        roiprintable.write_all("{\"".concat(n_frame).concat("\":["));
         int cont_t = 0;
+
         
         // CONVERTO LE SEZIONI INVIDIDUATE IN QUADRATI E LI SOVRASCRIVO ALL'IMMAGINE
         foreach (geometry.Rectangle rect in rettangoli) 
@@ -347,13 +342,14 @@ public class Scrambling : Object
             pts.add(matPt);
             
             if(cont_t == rettangoli.size()-1)
-            	scrivi_xml.print("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
+                roiprintable.write_all("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
+                
             else
-                scrivi_xml.print("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
+                roiprintable.write_all("{\"x\":".concat(rect.getX()).concat(",\"y\":").concat(rect.getY()).concat(",\"w\":").concat(rect.getWidth()).concat(",\"h\":").concat(rect.getHeight()).concat("}"));
             cont_t++;
             
         }
-        scrivi_xml.print("]}");
+        roiprintable.write_all("]}");
         
         
         // SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
