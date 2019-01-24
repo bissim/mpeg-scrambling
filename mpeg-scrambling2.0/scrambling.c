@@ -17,6 +17,7 @@
 #include "mpeg.h"
 #include "matlab_engine_jpeg.h"
 #include "scrambling_vala.h"
+#include <glib.h>
 
 
 int scrambling;     // variabile [0,1] per applicare o meno lo scrambling
@@ -258,14 +259,14 @@ void startScrambling(){
     //char command[150];
     //sprintf(command, "java -Djava.library.path=/usr/local/lib/ -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
     //system(command);
-    
-    char arguments[4] = {CImage->Width , CImage->Height, "bin/temp/", CurrentFrame-StartFrame};
-    scrambling_run(arguments, 4);
+
+    gchar arguments[4] = {CImage->Width , CImage->Height, "bin/temp/", CurrentFrame-StartFrame};
+    run(arguments, 4);
 
     char fileN2[50];
     sprintf(fileN2,path_matrix_ROI);
 
-    
+
     // Apro il file ROI.json contenente le ROI calcolate dall'applicazione esterna Scambling
     // per salvarle in un unico file ROIs.json così da poter aggiungere le informazioni aggiuntive
     // all'header del mpg per effettuare poi l'unscrambling

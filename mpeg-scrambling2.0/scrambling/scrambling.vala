@@ -7,10 +7,7 @@ using classifier;
 using Gdk;
 using imgproc;
 
-public class Scrambling : Object 
-{
-
-    public static int run(string[] args) //throws Error 
+public int run(string[] args) //throws Error 
     {
         if(args.length != 4)
         {
@@ -393,8 +390,6 @@ public class Scrambling : Object
         
         return 0;
 	}
-
-}
 
 
 class Support : Object
