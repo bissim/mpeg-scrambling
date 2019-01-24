@@ -9,7 +9,7 @@ CC = gcc
 
 # w ang g parameters have been introduced for debug purposes
 # remove them in production environment
-MFLAGS = -O3 -g -w `pkg-config --cflags --libs glib-2.0 gobject-2.0 gee-0.8 gio-2.0`
+MFLAGS = -O3 -g -w `pkg-config --cflags --libs glib-2.0 gobject-2.0 gee-0.8 gio-2.0 gdk-pixbuf-2.0`
 DEFS = system.h globals.h marker.h watermark.h scrambling.h scrambling_vala.h cJSON.h
 BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
 
@@ -40,7 +40,7 @@ mpeg: $(BASELINE)
 
 # add -H scrambling_vala.h if needed
 vala:
-	valac ./scrambling/*.vala -C --vapidir ./scrambling/vapis/ --pkg OpenCV --pkg gee-0.8 --pkg gio-2.0 --pkg gdk-pixbuf-2.0 --disable-warnings
+	valac ./scrambling/*.vala -C -H scrambling_vala.h --vapidir ./scrambling/vapis/ --pkg OpenCV --pkg gee-0.8 --pkg gio-2.0 --pkg gdk-pixbuf-2.0 --disable-warnings
 
 mpeg.o: mpeg.c $(DEFS) mpeg.h
 codec.o: codec.c $(DEFS)
