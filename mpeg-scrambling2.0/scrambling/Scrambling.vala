@@ -7,7 +7,7 @@ using classifier;
 using Gdk;
 using imgproc;
 
-public int run(string[] args) //throws Error 
+public int main(string[] args) //throws Error 
     {
         if(args.length != 4)
         {
