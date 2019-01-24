@@ -261,7 +261,7 @@ void startScrambling(){
     //system(command);
 
     gchar arguments[4] = {CImage->Width , CImage->Height, "bin/temp/", CurrentFrame-StartFrame};
-    run(arguments, 4);
+    _vala_main(arguments, 4);
 
     char fileN2[50];
     sprintf(fileN2,path_matrix_ROI);
