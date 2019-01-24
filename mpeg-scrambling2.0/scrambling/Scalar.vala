@@ -2,7 +2,7 @@ namespace geometry
 { 
     public class Scalar : Object
     {
-        public double val[];
+        public double val[4];
         
         public Scalar(double v0, double v1, double v2) 
         {
