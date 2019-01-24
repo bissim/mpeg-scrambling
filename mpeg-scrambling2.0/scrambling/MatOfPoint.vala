@@ -33,7 +33,7 @@ namespace geometry
                 return;
             int num = a.length;
             alloc(num);
-            int buff[] = new int[num * _channels];
+            int buff[8] = new int[num * _channels];
             for(int i=0; i<num; i++) {
                 geometry.Point p = a[i];
                 buff[_channels*i+0] = (int) p.x;
