@@ -63,7 +63,7 @@ public int main(string[] args) //throws Error
         string line;
         while((line = disY.read_line()) != null) 
         {
-            string st[] = line.split(",",0);   //controllare se prende una  riga. 
+            string st[1024] = line.split(",",0);   //controllare se prende una  riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -146,7 +146,7 @@ public int main(string[] args) //throws Error
         
         while((line = disU.read_line()) != null) 
         {
-            string st[] = line.split(",",0);   //controllare se prende una  riga. 
+            string st[1024] = line.split(",",0);   //controllare se prende una  riga. 
         	int k = 0;
             while (k < st.length)
             {
@@ -221,7 +221,7 @@ public int main(string[] args) //throws Error
 
         while((line = disV.read_line()) != null) 
         {
-            string st[] = line.split(",",0);   //controllare se prende una  riga.  
+            string st[1024] = line.split(",",0);   //controllare se prende una  riga.  
         	int k = 0;
             while (k < st.length)
             {
@@ -369,7 +369,7 @@ public int main(string[] args) //throws Error
         
         
         // SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
-        geometry.Point[] rook_points2 = new geometry.Point[4];
+        geometry.Point[4] rook_points2 = new geometry.Point[4];
         rook_points2[0]  = new geometry.Point(0,0);
         rook_points2[1]  = new geometry.Point(w,0);
         rook_points2[2]  = new geometry.Point(w,h);
@@ -464,4 +464,3 @@ class Support : Object
     }
 
 }
-
