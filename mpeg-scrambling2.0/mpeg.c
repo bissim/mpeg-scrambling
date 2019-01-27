@@ -738,7 +738,7 @@ void MpegEncodeSequence()
         if (BaseFrame+FrameInterval > LastFrame)
             FrameInterval = LastFrame-BaseFrame;
         LoadFGroup(BaseFrame);                  // We do motion compensation
-        InterpolativeBME();
+        InterpolativeBME();                     
         CurrentFrame=BaseFrame+FrameInterval;   // Load in next base
         if (!((FrameIntervalCount+1)%FrameGroup))
 	{                              // Load an Intra Frame
@@ -1104,7 +1104,8 @@ void MpegEncodeIPBDFrame()
 
     /***********************************************************/
     // SE PASSATO IL PARAMETRO -scram APPLICA LO SCRAMBLING
-    if(scrambling>0){
+    if(scrambling>0)
+    {
         initPseudo4Frame();
         startScrambling();
     }/***********************************************************/
@@ -1122,7 +1123,8 @@ void MpegEncodeIPBDFrame()
     modX = 0;
     modY = 0;
 
-    while(VPos<MBHeight){
+    while(VPos<MBHeight)
+    {
         CurrentMBS++;
         length = MBWidth*MBHeight - (HPos + (VPos*MBWidth));
         if ((MBperSlice<0)||(length<MBperSlice)) MBperSlice=length;
@@ -1614,6 +1616,7 @@ static void MpegCompressMType()
 
     SkipMode=0;
     CBP = 0x00;
+    
     for(c=0;c<6;c++)
     {
 
