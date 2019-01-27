@@ -17,7 +17,7 @@
 #include "mpeg.h"
 #include "matlab_engine_jpeg.h"
 
-
+int lastIntra = 0;      // variabile per l'id dell'ultimo frame INTRA processato
 int scrambling;     // variabile [0,1] per applicare o meno lo scrambling
 int N_FRAME = 0;    // num frame corrente
 int* frame_Y1;      // frame array 2D
@@ -250,16 +250,19 @@ void startScrambling(){
 
     MBperSlice = 0;
     
-    /////////////////////////////////////////////////////////////////////////////////
-    /////////// INVOCAZIONE DELLA SYSTEM CALL VERSO L'APPLICAZIONE DI SCRAMBLING ////
-    /////////////////////////////////////////////////////////////////////////////////
-    char command[150];
-    sprintf(command, "java -Djava.library.path=/usr/local/lib/ -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
-    system(command);
+    if(PType == P_INTRA)
+    {
+        lastIntra = CurrentFrame-StartFrame;
+        /////////////////////////////////////////////////////////////////////////////////
+        /////////// INVOCAZIONE DELLA SYSTEM CALL VERSO L'APPLICAZIONE DI SCRAMBLING ////
+        /////////////////////////////////////////////////////////////////////////////////
+        char command[150];
+        sprintf(command, "java -Djava.library.path=/usr/local/lib/ -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
+        system(command);
+    }
     
     char fileN2[50];
     sprintf(fileN2,path_matrix_ROI);
-
     
     // Apro il file ROI.json contenente le ROI calcolate dall'applicazione esterna Scambling
     // per salvarle in un unico file ROIs.json così da poter aggiungere le informazioni aggiuntive
@@ -274,7 +277,8 @@ void startScrambling(){
       exit(1);
     } 
 
-    if(read2 = getline(&line2, &len2, f2) != -1){
+    if(read2 = getline(&line2, &len2, f2) != -1)
+    {
         json = cJSON_Parse(line2);
         cJSON *temp = json->child;
         cJSON *items;
@@ -296,9 +300,23 @@ void startScrambling(){
             cJSON_AddItemToObject(item1,"h",cJSON_CreateNumber(h->valuedouble));
             cJSON_AddItemToArray(region, item1);
         }
-
-        cJSON_AddItemToObject(roi_json, temp->string, region);
+        
+        if(PType == P_INTRA)
+        {
+            cJSON_AddItemToObject(roi_json, temp->string, region);
+        }
+        else
+        {
+            int frame = CurrentFrame - StartFrame;
+            char str[12];
+            sprintf(str, "%d", frame);
+            
+            temp->string = str;
+            
+            cJSON_AddItemToObject(roi_json, temp->string, region);
+        }
     }
+    
 }
     
 
@@ -617,24 +635,33 @@ void ChangePixelMatrixY(matrix, meta)
   // Ottengo il json del file ROI.json contente le ROI del frame corrente precedentemente calcolato
   const cJSON *ROI  = NULL;
   char s[100];
-  sprintf(s, "%d",CurrentFrame-StartFrame);
+  
+  sprintf(s, "%d",lastIntra);
+  if(PType != P_INTRA) json->child->string = s;
+  
   const cJSON *ROIs = cJSON_GetObjectItemCaseSensitive(json,s);
  
   
   // Costruisco il frame (composto da 1320 blocchi per dim 352x240)
-  if(cP <= MAX_COUNT-1){
-        for(int i = 0;i < BLOCKHEIGHT;i++){
-            for(int j = 0;j < BLOCKWIDTH;j++){
+  if(cP <= MAX_COUNT-1)
+  {
+        for(int i = 0;i < BLOCKHEIGHT;i++)
+        {
+            for(int j = 0;j < BLOCKWIDTH;j++)
+            {
 
                 int myX = -1, myY = -1;
                 
                 // In base al numero di blocco corrente, calcolo la posizione (x,y) del valore all'interno del frame
-                if(meta == 1){
+                if(meta == 1)
+                {
                     int block = ((int)floor(cont_f1/dimBlock))%numBlocksW;
                     myX = block*8 + j;
                     myY = n_row_meta1*8 + i;
                     cont_f1++;
-                }else{
+                }
+                else
+                {
                     int block = (int)floor(cont_f2/dimBlock)%numBlocksW;
                     myX = block*8 + j;
                     myY = n_row_meta2*8 + i;
@@ -698,7 +725,10 @@ void ChangePixelMatrixU(matrix)
   // Ottengo il json del file ROI.json contente le ROI del frame corrente precedentemente calcolato
   const cJSON *ROI  = NULL;
   char s[100];
-  sprintf(s, "%d",CurrentFrame-StartFrame);
+  
+  sprintf(s, "%d",lastIntra);
+  if(PType != P_INTRA) json->child->string = s;
+  
   const cJSON *ROIs = cJSON_GetObjectItemCaseSensitive(json,s);
 
   // Altero i pixel del frame della Crominanza (composto da 330 blocchi per dim 276x120)
@@ -772,7 +802,10 @@ void ChangePixelMatrixV(matrix)
   // Ottengo il json del file ROI.json contente le ROI del frame corrente precedentemente calcolato
   const cJSON *ROI  = NULL;
   char s[100];
-  sprintf(s, "%d",CurrentFrame-StartFrame);
+  
+  sprintf(s, "%d",lastIntra);
+  if(PType != P_INTRA) json->child->string = s;
+  
   const cJSON *ROIs = cJSON_GetObjectItemCaseSensitive(json,s);
   int v;
   // Altero i pixel del frame della Crominanza (composto da 330 blocchi per dim 276x120)
