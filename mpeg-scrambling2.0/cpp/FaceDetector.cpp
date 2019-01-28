@@ -2,6 +2,7 @@
 #include<vector>
 #include"FaceDetector.h"
 #include"opencv2/core/types.hpp"
+#include<exception>
 
 using namespace std;
 using namespace cv;
@@ -29,7 +30,7 @@ vector<Rect> FaceDetector::checkOverlapResult(vector<Rect> rects)
                 for (int j = 0; j < rects.size(); j++) 
                 {
                     if (i == j) continue;
-                    if (rects.at(i).contains(rects.at(j))) 
+                    if (mycontains(rects.at(i),rects.at(j))) 
                     {
                         rects.erase(rects.begin() + j);
                         overlap = true;
@@ -60,7 +61,7 @@ vector<Rect> FaceDetector::checkOverlapResult(vector<Rect> rects)
                 }
             }
         } 
-        catch (Exception e) {}
+        catch (exception e) {}
     }
     return rects;
 }
@@ -68,4 +69,11 @@ vector<Rect> FaceDetector::checkOverlapResult(vector<Rect> rects)
 bool FaceDetector::overlaps (Rect r1, Rect r2) 
 {
         return r2.x < r1.x + r1.width && r2.x + r2.width > r1.x && r2.y < r1.y + r1.height && r2.y + r2.height > r1.y;
+}
+
+bool FaceDetector::mycontains(Rect r1, Rect r2)
+{
+    return r1.width > 0 && r1.height > 0 && r2.width > 0 && r2.height > 0
+    && r2.x >= r1.x && r2.x + r2.width <= r1.x + r1.width
+    && r2.y >= r1.y && r2.y + r2.height <= r1.y + r1.height;
 }
