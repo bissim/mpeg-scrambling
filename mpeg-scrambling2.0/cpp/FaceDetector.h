@@ -16,4 +16,6 @@ class FaceDetector
     public: 
             FaceDetector();
             void addStrategy(FaceDetectorInterface<Rect> strategy);
+            bool mycontains(Rect r1, Rect r2);
+            Rect myunion(Rect r1, Rect r2);
 };
