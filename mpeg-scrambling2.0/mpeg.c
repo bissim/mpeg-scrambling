@@ -641,7 +641,7 @@ char **argv;
     // gettimeofday(&_stop, NULL);
     clock_gettime(CLOCK_REALTIME, &_stop);
     const int NS_IN_S = 1E9;
-    double secs = (_stop.tv_sec - _start.tv_sec) + (_stop.tv_nsec - _start.tv_nsec)/ NS_IN_S; // TODO check returned value
+    float secs = (_stop.tv_sec - _start.tv_sec) +  (float) (_stop.tv_nsec - _start.tv_nsec) / NS_IN_S; // TODO check returned value
 
     printf("Tempo impiegato: %.3f s\n", secs);
 
@@ -1022,6 +1022,10 @@ void MpegEncodeIPBDFrame()
     BEGIN("MpegEncodeIPBDFrame");
     int i,length;
 
+    // ai fini del testing
+    struct timespec _start, _stop;
+    // gettimeofday(&_start, NULL);
+    clock_gettime(CLOCK_REALTIME, &_start);
 
     if (Rate)                               /* Assume no decoder delay */
         BufferFullness = (90000*((BufferSize - BufferContents())/400))/(Rate/400);
@@ -1136,7 +1140,12 @@ void MpegEncodeIPBDFrame()
     CollectStatistics();
     Statistics(CFSUse,CFSNew);
 
+    // gettimeofday(&_stop, NULL);
+    clock_gettime(CLOCK_REALTIME, &_stop);
+    const int NS_IN_S = 1E9;
+    float secs = (_stop.tv_sec - _start.tv_sec) + (float) (_stop.tv_nsec - _start.tv_nsec) / NS_IN_S; // TODO check returned value
 
+    printf("Tempo impiegato per il frame %d: %.3f s\n", CurrentFrame, secs);
 
 }
 
