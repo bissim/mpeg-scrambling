@@ -10,8 +10,8 @@ class OpenCVFaceDetector : public FaceDetectorInterface<Rect>
 {
     private:
             fstream *image;
-            fstream *templateList;
+            string templateList;
 
     public:
-            OpenCVFaceDetector(fstream &image,fstream &templateList);
+            OpenCVFaceDetector(fstream &image,string templateList);
 };
