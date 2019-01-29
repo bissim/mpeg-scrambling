@@ -2,7 +2,6 @@
 #include<fstream>
 #include<vector>
 #include<string>
-#include<experimental/filesystem>
 #include"OpenCVFaceDetector.h"
 #include"opencv2/core/types.hpp"
 #include"opencv2/objdetect/objdetect.hpp"
@@ -24,8 +23,8 @@ vector<Rect> detectFaces()
         CascadeClassifier faceDetector = CascadeClassifier();
         vector<Rect> faceDetections = vector<Rect>();
 
-        for(const auto & entry : directory_iterator(templateList)) 
-        {
+        /*for(const auto & entry : directory_iterator(templateList)) 
+        {*/
                 Mat image = imread(""/*this.image.getAbsolutePath()*/);
 
                 //faceDetector.load(templateList.listFiles()[i].getAbsolutePath()); //controlla
@@ -36,5 +35,5 @@ vector<Rect> detectFaces()
                         rects.push_back(Rect(rect.x, rect.y, rect.width, rect.height));
                 }
 
-        }
+        //}
 }
