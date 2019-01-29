@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     ////////////////////////////////////////////////////////////////////////////////
     ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
     ///////////// CONTENENTE IL FRAME V ////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////*/
+    ////////////////////////////////////////////////////////////////////////////////
 
     string lineV;
     ifstream inputV;
@@ -263,8 +263,8 @@ int main(int argc, char *argv[])
     
     //////////////////////////////////////////////////////////////////////////
     // APPLICO LO SCRAMBLING SULLA LUMINANZA DEL FRAME PER CALCOLARE LE ROI //
-    //////////////////////////////////////////////////////////////////////////*/
-        
+    //////////////////////////////////////////////////////////////////////////
+
     vector<string> strategies;
     strategies.push_back("../xml/lbpcascade_frontalface.xml");
     strategies.push_back("../xml/lbpcascade_frontalcatface.xml");
@@ -277,20 +277,20 @@ int main(int argc, char *argv[])
     
     
     // DEFINISCO LA STRATEGIA DI RICERCA
-    //Mat image; // = imread(""/*outputfileY.getAbsolutePath()*/,1);
+    Mat image = imread("./~Y.txt.ppm",1);
     
-    /*if(image.empty()) 
+    if(image.empty()) 
     {
         cout<<"Immagine non caricata!"<<endl;
         return -1;
-    }*/
+    }
     
     vector<vector<vector<Point>>> pts;
-    //CascadeClassifier faceDetector;
+    CascadeClassifier faceDetector;
     vector<Rect> rettangoli;
     
     int faces = 0;
-    /*for(string strategy : strategies) 
+    for(string strategy : strategies) 
     {
         
         faceDetector = CascadeClassifier(strategy);
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
         }
         
         rettangoli = checkOverlapResult(rettangoli);
-    }*/
+    }
 
     //////////////////////////////////////////////////////////////////////////
     ///// CREO IL FILE JSON CON LE EVENTUALI ROI CALCOLATE SULL'IMMAGINE /////
