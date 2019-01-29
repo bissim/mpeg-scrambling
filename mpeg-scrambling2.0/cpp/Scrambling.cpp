@@ -3,10 +3,12 @@
 #include<string>
 #include<exception>
 #include"opencv2/core/types.hpp"
-#include"opencv2/imgcodecs.hpp"
 #include"opencv2/objdetect/objdetect.hpp"
 #include"opencv2/core/mat.hpp"
+#include"opencv2/imgcodecs.hpp"
+#include"opencv2/imgproc.hpp"
 #include<stdlib.h>
+#include<fstream>
 
 using namespace std;
 using namespace cv;
@@ -57,7 +59,7 @@ int main(int argc, char *argv[])
     
     
     // DEFINISCO LA STRATEGIA DI RICERCA
-    //Mat image; //= imread(""/*outputfileY.getAbsolutePath()*/,1);
+    //Mat image; // = imread(""/*outputfileY.getAbsolutePath()*/,1);
     
     /*if(image.empty()) 
     {
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
         return -1;
     }*/
     
-    vector<Point> pts;
+    vector<vector<vector<Point>>> pts;
     //CascadeClassifier faceDetector;
     vector<Rect> rettangoli;
     
@@ -91,7 +93,54 @@ int main(int argc, char *argv[])
         rettangoli = checkOverlapResult(rettangoli);
     }*/
 
-    //more code
+    //////////////////////////////////////////////////////////////////////////
+    ///// CREO IL FILE JSON CON LE EVENTUALI ROI CALCOLATE SULL'IMMAGINE /////
+    //////////////////////////////////////////////////////////////////////////
+    
+    ofstream scrivi_xml;
+    scrivi_xml.open(path+"~ROI.json");
+    scrivi_xml << "{\""+n_frame+"\":[";
+    int cont_t = 0;
+    
+    // CONVERTO LE SEZIONI INVIDIDUATE IN QUADRATI E LI SOVRASCRIVO ALL'IMMAGINE
+    for (Rect rect : rettangoli)
+    {
+        vector<Point> rook_points;
+        rook_points.push_back(Point(rect.x,rect.y));
+        rook_points.push_back(Point(rect.x + rect.width, rect.y));
+        rook_points.push_back(Point(rect.x + rect.width, rect.y + rect.height));
+        rook_points.push_back(Point(rect.x, rect.y + rect.height));
+
+        vector<vector<Point>> matPt;
+        matPt.push_back(rook_points);
+
+        pts.push_back(matPt);
+        
+        if(cont_t == rettangoli.size()-1)
+            scrivi_xml << "{\"x\":"+to_string(rect.x)+",\"y\":"+to_string(rect.y)+",\"w\":"+to_string(rect.width)+",\"h\":"+to_string(rect.height)+"}";
+        else
+            scrivi_xml << "{\"x\":"+to_string(rect.x)+",\"y\":"+to_string(rect.y)+",\"w\":"+to_string(rect.width)+",\"h\":"+to_string(rect.height)+"},";
+        cont_t++;
+        
+    }
+    scrivi_xml << "]}";
+
+    // SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
+    vector<Point> matPt2;
+    matPt2.push_back(Point(0,0));
+    matPt2.push_back(Point(w,0));
+    matPt2.push_back(Point(w,h));
+    matPt2.push_back(Point(0,h));
+    
+    vector<vector<Point>> pts2;
+    pts2.push_back(matPt2);
+    //fillPoly(image,pts2,Scalar(255,255,255),0);
+    
+    //fillPoly(image,pts,Scalar(0,0,0),0);
+    //imwrite(fileY+"_scramb."+file_format, image);
+    
+    cout<<"Ultimate scrambling frame: "<<n_frame<<endl;
+    cout<<"***** FACCE TROVATE: "<<faces<<" *****"<<endl;
 
     return 0;
 }
