@@ -9,7 +9,7 @@
 #include"opencv2/imgproc.hpp"
 #include<stdlib.h>
 #include<fstream>
-#include<bits/stdc++.h> 
+#include<bits/stdc++.h>
 
 using namespace std;
 using namespace cv;
@@ -42,8 +42,6 @@ int main(int argc, char *argv[])
     cout<<"Apro il file "<<fileU<<endl;
     cout<<"Apro il file "<<fileV<<endl;
 
-    //BufferedImage biY;
-	//BufferedImage bi;
     int i=0, j=0, block=0, block_i=0, block_j=0, count=0;
     int matrix[h][w];
     int matrix2[h/2][w/2];
@@ -54,7 +52,6 @@ int main(int argc, char *argv[])
     ///////////// CONTENENTE IL FRAME Y ////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
     
-    //biY = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
     string lineY;
     ifstream inputY;
     inputY.open(fileY);
@@ -69,7 +66,7 @@ int main(int argc, char *argv[])
         { 
             tokens.push_back(intermediate); 
         } 
-
+        
         int cvect=0;
         while (cvect < tokens.size())
         {
@@ -78,7 +75,7 @@ int main(int argc, char *argv[])
             j++;
             cvect++;
         }
-        
+
         i++;
         j = 0;
         
@@ -99,33 +96,36 @@ int main(int argc, char *argv[])
         }
     }
 
-    /*for(i = 0;i < h;i++) 
+    ofstream fileoutputY;
+    fileoutputY.open(fileY+"."+"ppm");
+
+    fileoutputY << "P3" << endl;
+    fileoutputY << w << " " << h <<endl;
+    fileoutputY << "255" << endl;
+
+    for(i = 0;i < h;i++) 
     {
         for(j = 0;j < w;j++) 
         {
             int a = matrix[i][j];
+
             if(a <= 255 && a >= 0)
-                rgb = new Color(a,a,a).getRGB();
+            {
+                fileoutputY << a << " " << a << " " << a <<endl;
+            }
             else
-                rgb = new Color(0,0,0).getRGB();
-            
-            biY.setRGB(j,i,rgb);
+            {
+                a = 255;
+                fileoutputY << a << " " << a << " " << a <<endl;
+            }
         }
     }
-        
-    /////////////////////////////////////////////////////////
-    // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
-    /////////////////////////////////////////////////////////
-    
-    File outputfileY = new File(fileY+"."+file_format);
-    ImageIO.write(biY, file_format, outputfileY);*/
 
     ////////////////////////////////////////////////////////////////////////////////
     ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
     ///////////// CONTENENTE IL FRAME U ////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
 
-    //bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
     string lineU;
     ifstream inputU;
     inputU.open(fileU);
@@ -175,29 +175,27 @@ int main(int argc, char *argv[])
         }
     }
     
-   /* for(i = 0;i < h/2;i++) 
+    ofstream fileoutputU;
+    fileoutputU.open(fileU+"."+"ppm");
+
+    fileoutputU << "P3" << endl;
+    fileoutputU << w/2 << " " << h/2 <<endl;
+    fileoutputU << "255" << endl;
+
+    for(i = 0;i < h/2;i++) 
     {
         for(j = 0;j < w/2;j++) 
         {
-            int a = matrix[i][j];
-            rgb = new Color(a,a,a).getRGB();
-            bi.setRGB(j,i,rgb);
+            int a = matrix2[i][j];
+            fileoutputU << a << " " << a << " " << a <<endl; 
         }
     }
-        
-    /////////////////////////////////////////////////////////
-    // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
-    /////////////////////////////////////////////////////////
-    
-    File outputfileU = new File(fileU+"."+file_format);
-    ImageIO.write(bi, file_format, outputfileU);
 
     ////////////////////////////////////////////////////////////////////////////////
     ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
     ///////////// CONTENENTE IL FRAME V ////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////*/
 
-    //bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
     string lineV;
     ifstream inputV;
     inputV.open(fileV);
@@ -247,19 +245,21 @@ int main(int argc, char *argv[])
         }
     }
     
-   /* for(i = 0;i < h/2;i++) 
+    ofstream fileoutputV;
+    fileoutputV.open(fileV+"."+"ppm");
+
+    fileoutputV << "P3" << endl;
+    fileoutputV << w/2 << " " << h/2 <<endl;
+    fileoutputV << "255" << endl;
+
+    for(i = 0;i < h/2;i++) 
     {
         for(j = 0;j < w/2;j++) 
         {
-            int a = matrix[i][j];
-            rgb = new Color(a,a,a).getRGB();
-            bi.setRGB(j,i,rgb);
+            int a = matrix3[i][j];
+            fileoutputV << a << " " << a << " " << a <<endl; 
         }
     }
-
-    // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUITA
-    File outputfileV = new File(fileV+"."+file_format);
-    ImageIO.write(bi, file_format, outputfileV);
     
     //////////////////////////////////////////////////////////////////////////
     // APPLICO LO SCRAMBLING SULLA LUMINANZA DEL FRAME PER CALCOLARE LE ROI //
@@ -343,7 +343,8 @@ int main(int argc, char *argv[])
     }
     scrivi_xml << "]}";
 
-    // SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
+    //TODO completare.
+    /* SALVO L'IMMAGINE CON LE MASCHERE UTILE SOLO AI FINI DI DEBUGGING
     vector<Point> matPt2;
     matPt2.push_back(Point(0,0));
     matPt2.push_back(Point(w,0));
@@ -355,7 +356,7 @@ int main(int argc, char *argv[])
     //fillPoly(image,pts2,Scalar(255,255,255),0);
     
     //fillPoly(image,pts,Scalar(0,0,0),0);
-    //imwrite(fileY+"_scramb."+file_format, image);
+    //imwrite(fileY+"_scramb."+file_format, image);*/
     
     cout<<"Ultimate scrambling frame: "<<n_frame<<endl;
     cout<<"***** FACCE TROVATE: "<<faces<<" *****"<<endl;
