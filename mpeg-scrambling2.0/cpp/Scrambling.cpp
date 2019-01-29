@@ -9,6 +9,7 @@
 #include"opencv2/imgproc.hpp"
 #include<stdlib.h>
 #include<fstream>
+#include<bits/stdc++.h> 
 
 using namespace std;
 using namespace cv;
@@ -26,11 +27,11 @@ int main(int argc, char *argv[])
     string file_format = "bmp";
     int rgb;
     
-    w = atoi(argv[0]);
-    h = atoi(argv[1]);
-    path = argv[2]; 
+    w = atoi(argv[1]);
+    h = atoi(argv[2]);
+    path = argv[3]; 
     
-    string n_frame = argv[3];
+    string n_frame = argv[4];
 
     string fileY = path+"~Y.txt";
     string fileU = path+"~U.txt";
@@ -41,11 +42,228 @@ int main(int argc, char *argv[])
     cout<<"Apro il file "<<fileU<<endl;
     cout<<"Apro il file "<<fileV<<endl;
 
-    //more code
+    //BufferedImage biY;
+	//BufferedImage bi;
+    int i=0, j=0, block=0, block_i=0, block_j=0, count=0;
+    int matrix[h][w];
+    int matrix2[h/2][w/2];
+    int matrix3[h/2][w/2];
+
+    ////////////////////////////////////////////////////////////////////////////////
+	///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
+    ///////////// CONTENENTE IL FRAME Y ////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    
+    //biY = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+    string lineY;
+    ifstream inputY;
+    inputY.open(fileY);
+    
+    while(getline(inputY,lineY))
+    {   
+        vector<string> tokens;
+        stringstream check1(lineY);
+        string intermediate;
+        
+        while(getline(check1, intermediate, ',')) 
+        { 
+            tokens.push_back(intermediate); 
+        } 
+
+        int cvect=0;
+        while (cvect < tokens.size())
+        {
+            int a = stoi(tokens.at(cvect));
+            matrix[i+block_i][j+block_j] = a;
+            j++;
+            cvect++;
+        }
+        
+        i++;
+        j = 0;
+        
+        if(i == 8) 
+        {
+            i = 0;
+            j = 0;
+            block_j += 8;
+            if(block_j >= w) {
+                block_j = 0;
+                block_i += 8;
+            }
+            
+            if(block_i >= h) {
+                block_i = 0;
+                break;
+            }	
+        }
+    }
+
+    /*for(i = 0;i < h;i++) 
+    {
+        for(j = 0;j < w;j++) 
+        {
+            int a = matrix[i][j];
+            if(a <= 255 && a >= 0)
+                rgb = new Color(a,a,a).getRGB();
+            else
+                rgb = new Color(0,0,0).getRGB();
+            
+            biY.setRGB(j,i,rgb);
+        }
+    }
+        
+    /////////////////////////////////////////////////////////
+    // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
+    /////////////////////////////////////////////////////////
+    
+    File outputfileY = new File(fileY+"."+file_format);
+    ImageIO.write(biY, file_format, outputfileY);*/
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
+    ///////////// CONTENENTE IL FRAME U ////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+
+    //bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
+    string lineU;
+    ifstream inputU;
+    inputU.open(fileU);
+    i = 0;
+    j = 0;
+    block = 0;
+    block_i = 0;
+    block_j = 0;
+    count = 0;
+    
+    while(getline(inputU,lineU)) 
+    {
+        vector<string> tokens;
+        stringstream check1(lineU);
+        string intermediate;
+        
+        while(getline(check1, intermediate, ',')) 
+        { 
+            tokens.push_back(intermediate); 
+        } 
+
+        int cvect=0;
+        while (cvect < tokens.size())
+        {
+            int a = stoi(tokens.at(cvect));
+            matrix2[i+block_i][j+block_j] = a;
+            j++;
+            cvect++;
+        }
+        
+        i++;
+        j = 0;
+        
+        if(i == 8) {
+            i = 0;
+            j = 0;
+            block_j += 8;
+            if(block_j >= w/2) {
+                block_j = 0;
+                block_i += 8;
+            }
+            
+            if(block_i >= h/2) {
+                block_i = 0;
+                break;
+            }	
+        }
+    }
+    
+   /* for(i = 0;i < h/2;i++) 
+    {
+        for(j = 0;j < w/2;j++) 
+        {
+            int a = matrix[i][j];
+            rgb = new Color(a,a,a).getRGB();
+            bi.setRGB(j,i,rgb);
+        }
+    }
+        
+    /////////////////////////////////////////////////////////
+    // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUTITA //
+    /////////////////////////////////////////////////////////
+    
+    File outputfileU = new File(fileU+"."+file_format);
+    ImageIO.write(bi, file_format, outputfileU);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
+    ///////////// CONTENENTE IL FRAME V ////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////*/
+
+    //bi = new BufferedImage(w/2, h/2, BufferedImage.TYPE_INT_RGB);
+    string lineV;
+    ifstream inputV;
+    inputV.open(fileV);
+    i = 0;
+    j = 0;
+    block = 0;
+    block_i = 0;
+    block_j = 0;
+    count = 0;
+    
+    while(getline(inputV,lineV)) 
+    {
+        vector<string> tokens;
+        stringstream check1(lineV);
+        string intermediate;
+       
+        while(getline(check1, intermediate, ',')) 
+        { 
+            tokens.push_back(intermediate); 
+        } 
+
+        int cvect=0;
+        while (cvect < tokens.size())
+        {
+            int a = stoi(tokens.at(cvect));
+            matrix3[i+block_i][j+block_j] = a;
+            j++;
+            cvect++;
+        }
+        
+        i++;
+        j = 0;
+        
+        if(i == 8) {
+            i = 0;
+            j = 0;
+            block_j += 8;
+            if(block_j >= w/2) {
+                block_j = 0;
+                block_i += 8;
+            }
+            
+            if(block_i >= h/2) {
+                block_i = 0;
+                break;
+            }	
+        }
+    }
+    
+   /* for(i = 0;i < h/2;i++) 
+    {
+        for(j = 0;j < w/2;j++) 
+        {
+            int a = matrix[i][j];
+            rgb = new Color(a,a,a).getRGB();
+            bi.setRGB(j,i,rgb);
+        }
+    }
+
+    // SALVO L'IMMAGINE A PARTIRE DALLA MATRICE COSTRUITA
+    File outputfileV = new File(fileV+"."+file_format);
+    ImageIO.write(bi, file_format, outputfileV);
     
     //////////////////////////////////////////////////////////////////////////
     // APPLICO LO SCRAMBLING SULLA LUMINANZA DEL FRAME PER CALCOLARE LE ROI //
-    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////*/
         
     vector<string> strategies;
     strategies.push_back("../xml/lbpcascade_frontalface.xml");
