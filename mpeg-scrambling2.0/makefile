@@ -14,15 +14,18 @@ DEFS = system.h globals.h marker.h watermark.h scrambling.h cJSON.h
 BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
 
 .c.o:
-	$(CC) $(MFLAGS) -c $*.c 
+	$(CC) $(MFLAGS) -c $*.c
 
 .c.ln:
-	lint -c $*.c 
+	lint -c $*.c
 
 all: mpeg
 
 clean:
 	rm *.o mpeg
+
+facedetector:
+	g++ facedetector.cpp `pkg-config --cflags --libs opencv` -c
 
 mpeg: $(BASELINE)
 	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
