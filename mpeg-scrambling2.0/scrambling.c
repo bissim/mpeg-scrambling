@@ -45,11 +45,11 @@ int frameSizeH;     // altezza frame
 int numBlocksW;     // numero blocchi riga matrice
 int dimBlock;       // Dimensione del blocco
 int MAX_COUNT;      // conteggio per la chiusura del frame
-char path_matrix_Y[100] = "bin/temp/~Y.txt";
-char path_matrix_U[100] = "bin/temp/~U.txt";
-char path_matrix_V[100] = "bin/temp/~V.txt";
-char path_matrix_ROI[100] = "bin/temp/~ROI.json";
-char path_matrix_ROIs[100] = "bin/temp/ROIs.json";
+char path_matrix_Y[100] = "./temp/~Y.txt";
+char path_matrix_U[100] = "./temp/~U.txt";
+char path_matrix_V[100] = "./temp/~V.txt";
+char path_matrix_ROI[100] = "./temp/~ROI.json";
+char path_matrix_ROIs[100] = "./temp/ROIs.json";
 int order = 0;
 int c_c = 0;
 int c_c2 = 0;
@@ -449,7 +449,7 @@ void CreateFrameMatrixY(matrix, meta)
     sprintf(fileN,path_matrix_Y);   
     FILE *f = fopen(fileN, "w");
     if(f == NULL){
-      printf("Error opening file !");
+      printf("Error opening file!");
       exit(1);
     } 
 
