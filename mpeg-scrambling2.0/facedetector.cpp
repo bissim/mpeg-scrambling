@@ -5,13 +5,15 @@
 #include <string>
 #include <exception>
 #include <bits/stdc++.h>
+#include <cmath>
 
 #include "opencv2/core/types.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/core/mat.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
-#include "facedetector.hpp"
+#include "bitmap_image.hpp"
+#include "facedetector.h"
 
 using namespace std;
 using namespace cv;
@@ -20,20 +22,19 @@ Rect myunion(Rect r1,Rect r2);
 bool mycontains(Rect r1,Rect r2);
 bool overlaps(Rect r1,Rect r2);
 vector<Rect>checkOverlapResult(vector<Rect>rects);
-int detectFaces(int, int, char*, char*);
 
-int main(int argc, char** argv)
-{
-    return detectFaces(atoi(argv[1]), atoi(argv[2]), argv[3], argv[4]);
-}
+// int main(int argc, char** argv)
+// {
+//     return detectFaces(atoi(argv[1]), atoi(argv[2]), argv[3], argv[4]);
+// }
 
-// int main(int argc, char *argv[])
+extern "C"
 int detectFaces(int w, int h, char* path_array, char* n_frame_array)
 {		
     // int w = 0;
     // int h = 0;
     // string path = "";
-    // string file_format = "bmp";
+    string file_format = "bmp";
     int rgb;
 
     // w = atoi(argv[1]);
@@ -67,6 +68,8 @@ int detectFaces(int w, int h, char* path_array, char* n_frame_array)
     ifstream inputY;
     inputY.open(fileY);
     
+    cout << "Leggo la matrice di luminanza..." << endl;
+
     while(getline(inputY,lineY))
     {   
         vector<string> tokens;
@@ -107,30 +110,40 @@ int detectFaces(int w, int h, char* path_array, char* n_frame_array)
         }
     }
 
-    ofstream fileoutputY;
-    fileoutputY.open(fileY+"."+"ppm");
+    // ofstream fileoutputY;
+    // fileoutputY.open(fileY+"."+"ppm");
 
-    fileoutputY << "P3" << endl;
-    fileoutputY << w << " " << h <<endl;
-    fileoutputY << "255" << endl;
+    // fileoutputY << "P3" << endl;
+    // fileoutputY << w << " " << h <<endl;
+    // fileoutputY << "255" << endl;
+    cout << "Creo l'immagine di luminanza..." << endl;
+    bitmap_image luminance(w, h);
+    luminance.clear();
+    cout << "struttura immagine creata in memoria!" << endl;
 
-    for(i = 0;i < h;i++) 
+    for(i = 0; i < luminance.height(); i++)
     {
-        for(j = 0;j < w;j++) 
+        for(j = 0; j < luminance.width(); j++)
         {
             int a = matrix[i][j];
 
             if(a <= 255 && a >= 0)
             {
-                fileoutputY << a << " " << a << " " << a <<endl;
+                // fileoutputY << a << " " << a << " " << a <<endl;
+                luminance.set_pixel(j, i, a, a, a);
             }
             else
             {
                 a = 255;
-                fileoutputY << a << " " << a << " " << a <<endl;
+                // fileoutputY << a << " " << a << " " << a <<endl;
+                luminance.set_pixel(j, i, a, a, a);
             }
         }
     }
+
+    cout << "Salvo l'immagine di luminanza..." << endl;
+    luminance.save_image(fileY + "." + file_format);
+    cout << "Immagine salvata!" << endl;
 
     ////////////////////////////////////////////////////////////////////////////////
     ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
@@ -186,21 +199,25 @@ int detectFaces(int w, int h, char* path_array, char* n_frame_array)
         }
     }
     
-    ofstream fileoutputU;
-    fileoutputU.open(fileU+"."+"ppm");
+    // ofstream fileoutputU;
+    // fileoutputU.open(fileU+"."+"ppm");
 
-    fileoutputU << "P3" << endl;
-    fileoutputU << w/2 << " " << h/2 <<endl;
-    fileoutputU << "255" << endl;
+    // fileoutputU << "P3" << endl;
+    // fileoutputU << w/2 << " " << h/2 <<endl;
+    // fileoutputU << "255" << endl;
+    bitmap_image crominance(w/2, h/2);
 
-    for(i = 0;i < h/2;i++) 
+    for(i = 0;i < crominance.height(); i++) 
     {
-        for(j = 0;j < w/2;j++) 
+        for(j = 0;j < crominance.width(); j++)
         {
             int a = matrix2[i][j];
-            fileoutputU << a << " " << a << " " << a <<endl; 
+            // fileoutputU << a << " " << a << " " << a <<endl;
+            crominance.set_pixel(j, i, a, a, a);
         }
     }
+
+    crominance.save_image(fileU + "." + file_format);
 
     ////////////////////////////////////////////////////////////////////////////////
     ///////////// CREO L'IMMAGINE A PARTIRE DAL FILE TXT PROVENIENTE DA C //////////
@@ -256,21 +273,25 @@ int detectFaces(int w, int h, char* path_array, char* n_frame_array)
         }
     }
     
-    ofstream fileoutputV;
-    fileoutputV.open(fileV+"."+"ppm");
+    // ofstream fileoutputV;
+    // fileoutputV.open(fileV+"."+"ppm");
 
-    fileoutputV << "P3" << endl;
-    fileoutputV << w/2 << " " << h/2 <<endl;
-    fileoutputV << "255" << endl;
+    // fileoutputV << "P3" << endl;
+    // fileoutputV << w/2 << " " << h/2 <<endl;
+    // fileoutputV << "255" << endl;
+    // bitmap_image crominance(w/2, h/2);
+    crominance.clear();
 
-    for(i = 0;i < h/2;i++) 
+    for(i = 0; i < crominance.height(); i++)
     {
-        for(j = 0;j < w/2;j++) 
+        for(j = 0; j < crominance.width(); j++)
         {
             int a = matrix3[i][j];
-            fileoutputV << a << " " << a << " " << a <<endl; 
+            // fileoutputV << a << " " << a << " " << a <<endl;
+            crominance.set_pixel(j, i, a, a, a);
         }
     }
+    crominance.save_image(fileV + "." + file_format);
     
     //////////////////////////////////////////////////////////////////////////
     // APPLICO LO SCRAMBLING SULLA LUMINANZA DEL FRAME PER CALCOLARE LE ROI //
@@ -288,7 +309,7 @@ int detectFaces(int w, int h, char* path_array, char* n_frame_array)
     
     
     // DEFINISCO LA STRATEGIA DI RICERCA
-    Mat image = imread("./~Y.txt.ppm",1);
+    Mat image = imread(path + "~Y.txt." + file_format, 1);
     
     if(image.empty()) 
     {
@@ -327,7 +348,7 @@ int detectFaces(int w, int h, char* path_array, char* n_frame_array)
     //////////////////////////////////////////////////////////////////////////
     
     ofstream scrivi_xml;
-    scrivi_xml.open(path+"~ROI.json");
+    scrivi_xml.open(path + "~ROI.json");
     scrivi_xml << "{\""+n_frame+"\":[";
     int cont_t = 0;
     

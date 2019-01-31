@@ -11,7 +11,7 @@ CC = gcc
 # remove them in production environment
 MFLAGS = -O3 -g -w
 DEFS = system.h globals.h marker.h watermark.h scrambling.h cJSON.h
-BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c
+BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o stat.o stream.o transform.o watermark.o scrambling.o cJSON.c facedetector.o
 
 .c.o:
 	$(CC) $(MFLAGS) -c $*.c
@@ -19,16 +19,16 @@ BASELINE = mpeg.o codec.o huffman.o io.o chendct.o lexer.o marker.o me.o mem.o s
 .c.ln:
 	lint -c $*.c
 
-all: mpeg
+all: facedetector mpeg
 
 clean:
 	rm *.o mpeg
 
 facedetector:
-	g++ facedetector.cpp `pkg-config --cflags --libs opencv` -c
+	g++ $(MFLAGS) facedetector.cpp `pkg-config --cflags --libs opencv` -c
 
 mpeg: $(BASELINE)
-	$(CC) $(MFLAGS) $(BASELINE) -lm -o mpeg
+	g++ $(MFLAGS) $(BASELINE) `pkg-config --cflags --libs opencv` -lm -o mpeg
 
 mpeg.o: mpeg.c $(DEFS) mpeg.h
 codec.o: codec.c $(DEFS)
@@ -43,7 +43,7 @@ stat.o: stat.c
 stream.o: stream.c $(DEFS)
 transform.o: transform.c $(DEFS) dct.h
 watermark.o: watermark.c $(DEFS) watermark.h
-scrambling.o: scrambling.c $(DEFS) scrambling.h
+scrambling.o: scrambling.c $(DEFS) scrambling.h facedetector.h
 cJSON.o: cJSON.c $(DEFS) cJSON.h
 
 

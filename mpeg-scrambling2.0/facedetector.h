@@ -1,5 +1,3 @@
-/* This file was automatically generated.  Do not edit! */
-#undef INTERFACE
 #ifndef FACEDETECTOR_H
 #define FACEDETECTOR_H
 

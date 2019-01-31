@@ -16,7 +16,7 @@
 #include "scrambling.h"
 #include "mpeg.h"
 #include "matlab_engine_jpeg.h"
-// #include "facedetector.hpp"
+#include "facedetector.h"
 
 int lastIntra = 0;      // variabile per l'id dell'ultimo frame INTRA processato
 int scrambling;     // variabile [0,1] per applicare o meno lo scrambling
@@ -257,11 +257,13 @@ void startScrambling(){
         /////////////////////////////////////////////////////////////////////////////////
         /////////// INVOCAZIONE DELLA SYSTEM CALL VERSO L'APPLICAZIONE DI SCRAMBLING ////
         /////////////////////////////////////////////////////////////////////////////////
-        char command[150];
+        // char command[150];
         // sprintf(command, "java -Djava.library.path=/usr/local/lib/ -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
-        sprintf(command, "./facedetector %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
-        system(command);
-        // detectFaces(CImage->Width, CImage->Height, "/bin/temp/", CurrentFrame-StartFrame);
+        // sprintf(command, "./facedetector %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
+        // system(command);
+        char frame_id[8];
+        sprintf(frame_id, "%d", CurrentFrame - StartFrame);
+        detectFaces(CImage->Width, CImage->Height, "./bin/temp/", frame_id);
     }
     
     char fileN2[50];
@@ -275,8 +277,8 @@ void startScrambling(){
     size_t len2 = 0;
     ssize_t read2;
 
-    if(f2 == NULL){
-      printf("Error opening file!");
+    if (f2 == NULL){
+      perror("Error opening file");
       exit(1);
     } 
 
