@@ -263,7 +263,7 @@ void startScrambling(){
         // system(command);
         char frame_id[8];
         sprintf(frame_id, "%d", CurrentFrame - StartFrame);
-        detectFaces(CImage->Width, CImage->Height, "./bin/temp/", frame_id);
+        detectFaces(CImage->Width, CImage->Height, "./temp/", frame_id);
     }
     
     char fileN2[50];
