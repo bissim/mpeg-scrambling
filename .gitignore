@@ -3,15 +3,8 @@
 **/*.code-workspace
 **/.settings/**
 
-/mpeg-scrambling2.0/*.o
-/mpeg-scrambling2.0/*.exe
-/mpeg-scrambling2.0/mpeg
-/mpeg-scrambling2.0/temp/*
-/mpeg-scrambling2.0/testSet/
-
-/Scrambling1.1/bin
-/Scrambling1.1/manifest.mf
-/Scrambling1.1/nbbuild.xml
-/Scrambling1.1/build/
-/Scrambling1.1/dist/
-
+*.o
+*.exe
+mpeg
+temp/*
+testSet/
