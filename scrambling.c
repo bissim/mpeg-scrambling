@@ -18,7 +18,7 @@
 #include "matlab_engine_jpeg.h"
 #include "facedetector.h"
 
-int lastIntra = 0;      // variabile per l'id dell'ultimo frame INTRA processato
+
 int scrambling;     // variabile [0,1] per applicare o meno lo scrambling
 int N_FRAME = 0;    // num frame corrente
 int* frame_Y1;      // frame array 2D
@@ -45,11 +45,11 @@ int frameSizeH;     // altezza frame
 int numBlocksW;     // numero blocchi riga matrice
 int dimBlock;       // Dimensione del blocco
 int MAX_COUNT;      // conteggio per la chiusura del frame
-char path_matrix_Y[100] = "./temp/~Y.txt";
-char path_matrix_U[100] = "./temp/~U.txt";
-char path_matrix_V[100] = "./temp/~V.txt";
-char path_matrix_ROI[100] = "./temp/~ROI.json";
-char path_matrix_ROIs[100] = "./temp/ROIs.json";
+char path_matrix_Y[100] = "bin/temp/~Y.txt";
+char path_matrix_U[100] = "bin/temp/~U.txt";
+char path_matrix_V[100] = "bin/temp/~V.txt";
+char path_matrix_ROI[100] = "bin/temp/~ROI.json";
+char path_matrix_ROIs[100] = "bin/temp/ROIs.json";
 int order = 0;
 int c_c = 0;
 int c_c2 = 0;
@@ -251,23 +251,13 @@ void startScrambling(){
 
     MBperSlice = 0;
     
-    if(PType == P_INTRA)
-    {
-        lastIntra = CurrentFrame-StartFrame;
-        /////////////////////////////////////////////////////////////////////////////////
-        /////////// INVOCAZIONE DELLA SYSTEM CALL VERSO L'APPLICAZIONE DI SCRAMBLING ////
-        /////////////////////////////////////////////////////////////////////////////////
-        // char command[150];
-        // sprintf(command, "java -Djava.library.path=/usr/local/lib/ -jar ./bin/Scrambling.jar %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
-        // sprintf(command, "./facedetector %d %d %s %d", CImage->Width,CImage->Height, "bin/temp/", CurrentFrame-StartFrame);
-        // system(command);
-        char frame_id[8];
-        sprintf(frame_id, "%d", CurrentFrame - StartFrame);
-        detectFaces(CImage->Width, CImage->Height, "./temp/", frame_id);
-    }
+    char frame_id[8];
+    sprintf(frame_id, "%d", CurrentFrame - StartFrame);
+    detectFaces(CImage->Width, CImage->Height, "./temp/", frame_id);
     
     char fileN2[50];
     sprintf(fileN2,path_matrix_ROI);
+
     
     // Apro il file ROI.json contenente le ROI calcolate dall'applicazione esterna Scambling
     // per salvarle in un unico file ROIs.json così da poter aggiungere le informazioni aggiuntive
@@ -277,13 +267,12 @@ void startScrambling(){
     size_t len2 = 0;
     ssize_t read2;
 
-    if (f2 == NULL){
-      perror("Error opening file");
+    if(f2 == NULL){
+      printf("Error opening file!");
       exit(1);
     } 
 
-    if(read2 = getline(&line2, &len2, f2) != -1)
-    {
+    if(read2 = getline(&line2, &len2, f2) != -1){
         json = cJSON_Parse(line2);
         cJSON *temp = json->child;
         cJSON *items;
@@ -305,23 +294,9 @@ void startScrambling(){
             cJSON_AddItemToObject(item1,"h",cJSON_CreateNumber(h->valuedouble));
             cJSON_AddItemToArray(region, item1);
         }
-        
-        if(PType == P_INTRA)
-        {
-            cJSON_AddItemToObject(roi_json, temp->string, region);
-        }
-        else
-        {
-            int frame = CurrentFrame - StartFrame;
-            char str[12];
-            sprintf(str, "%d", frame);
-            
-            temp->string = str;
-            
-            cJSON_AddItemToObject(roi_json, temp->string, region);
-        }
+
+        cJSON_AddItemToObject(roi_json, temp->string, region);
     }
-    
 }
     
 
@@ -449,7 +424,7 @@ void CreateFrameMatrixY(matrix, meta)
     sprintf(fileN,path_matrix_Y);   
     FILE *f = fopen(fileN, "w");
     if(f == NULL){
-      printf("Error opening file!");
+      printf("Error opening file !");
       exit(1);
     } 
 
@@ -640,33 +615,24 @@ void ChangePixelMatrixY(matrix, meta)
   // Ottengo il json del file ROI.json contente le ROI del frame corrente precedentemente calcolato
   const cJSON *ROI  = NULL;
   char s[100];
-  
-  sprintf(s, "%d",lastIntra);
-  if(PType != P_INTRA) json->child->string = s;
-  
+  sprintf(s, "%d",CurrentFrame-StartFrame);
   const cJSON *ROIs = cJSON_GetObjectItemCaseSensitive(json,s);
  
   
   // Costruisco il frame (composto da 1320 blocchi per dim 352x240)
-  if(cP <= MAX_COUNT-1)
-  {
-        for(int i = 0;i < BLOCKHEIGHT;i++)
-        {
-            for(int j = 0;j < BLOCKWIDTH;j++)
-            {
+  if(cP <= MAX_COUNT-1){
+        for(int i = 0;i < BLOCKHEIGHT;i++){
+            for(int j = 0;j < BLOCKWIDTH;j++){
 
                 int myX = -1, myY = -1;
                 
                 // In base al numero di blocco corrente, calcolo la posizione (x,y) del valore all'interno del frame
-                if(meta == 1)
-                {
+                if(meta == 1){
                     int block = ((int)floor(cont_f1/dimBlock))%numBlocksW;
                     myX = block*8 + j;
                     myY = n_row_meta1*8 + i;
                     cont_f1++;
-                }
-                else
-                {
+                }else{
                     int block = (int)floor(cont_f2/dimBlock)%numBlocksW;
                     myX = block*8 + j;
                     myY = n_row_meta2*8 + i;
@@ -730,10 +696,7 @@ void ChangePixelMatrixU(matrix)
   // Ottengo il json del file ROI.json contente le ROI del frame corrente precedentemente calcolato
   const cJSON *ROI  = NULL;
   char s[100];
-  
-  sprintf(s, "%d",lastIntra);
-  if(PType != P_INTRA) json->child->string = s;
-  
+  sprintf(s, "%d",CurrentFrame-StartFrame);
   const cJSON *ROIs = cJSON_GetObjectItemCaseSensitive(json,s);
 
   // Altero i pixel del frame della Crominanza (composto da 330 blocchi per dim 276x120)
@@ -807,10 +770,7 @@ void ChangePixelMatrixV(matrix)
   // Ottengo il json del file ROI.json contente le ROI del frame corrente precedentemente calcolato
   const cJSON *ROI  = NULL;
   char s[100];
-  
-  sprintf(s, "%d",lastIntra);
-  if(PType != P_INTRA) json->child->string = s;
-  
+  sprintf(s, "%d",CurrentFrame-StartFrame);
   const cJSON *ROIs = cJSON_GetObjectItemCaseSensitive(json,s);
   int v;
   // Altero i pixel del frame della Crominanza (composto da 330 blocchi per dim 276x120)

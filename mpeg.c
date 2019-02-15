@@ -562,6 +562,7 @@ char **argv;
         else
 	{
             strcpy(CFrame->ComponentFilePrefix[p++],argv[i]);
+            //path di lettura?
 	}
     }
     if (!CImage->StreamFileName)
@@ -608,13 +609,13 @@ char **argv;
         if (watermarkType>0) initInsWatermarkConfig();
 
         // inizializzo lo scrambling
-        if(scrambling>0) initScrambling();
+        if(scrambling>0 && PType == P_INTRA) initScrambling();
 
         // Prende i file y,u e v e ricostruisce l'mpeg
         MpegEncodeSequence();
 
         // "pulisco" le risorse di scrambling
-        if(scrambling>0) closeScrambling();
+        if(scrambling>0 && PType == P_INTRA) closeScrambling();
 
         // operazioni da eseguire alla fine della esecuzione
         if (watermarkType != 0) finalInsWatermark();
@@ -627,12 +628,12 @@ char **argv;
         if (watermarkType>0) initExtWatermarkConfig();
 
         // inizializzo l'unscrabling
-        if(scrambling>0) initDeScrambling();
+        if(scrambling>0 && PType == P_INTRA) initDeScrambling();
 
         MpegDecodeSequence();
 
         // "pulisco" le risorse dell'unscrambling
-        if(scrambling>0) closeDeScrambling();
+        if(scrambling>0 && PType == P_INTRA) closeDeScrambling();
 
         // operazioni da eseguire alla fine della esecuzione
         if (watermarkType != 0) finalExtWatermark();
@@ -1108,7 +1109,7 @@ void MpegEncodeIPBDFrame()
 
     /***********************************************************/
     // SE PASSATO IL PARAMETRO -scram APPLICA LO SCRAMBLING
-    if(scrambling>0)
+    if(scrambling>0 && PType == P_INTRA)
     {
         initPseudo4Frame();
         startScrambling();
@@ -1713,7 +1714,7 @@ static void MpegCompressMType()
 
         // Applico lo scrambling dopo la quantizzazione per evitare perdita di informazioni sui volti oscurati
         if(!GetFlag(CImage->MpegMode,M_DECODER)){ // l'opzione -d non è settata (encoder)
-            if(scrambling>0){ // se è stato passato il parametro -scramb
+            if(scrambling>0 && PType == P_INTRA){ // se è stato passato il parametro -scramb
                 if(c < 2) ChangePixelMatrixY(output,1); // Modifico le frequenze delle righe pari del canale di luminanza Y
                 if(c > 1 && c < 4) ChangePixelMatrixY(output,2); // Modifico le frequenze delle righe dispari del canale di luminanza Y
 
@@ -1943,24 +1944,24 @@ void MpegDecodeSequence()
     while(1)
     {
         if (MBSRead == -4)        /* Video sequence start */
-	{
-            if (ReadVSHeader())   /* Attempt to read the header file */
 	    {
+            if (ReadVSHeader())   /* Attempt to read the header file */
+	        {
                 srclose();
                 WHEREAMI();
                 printf("Invalid VS sequence.\n");
                 exit(-1);
-	    }
+	        }
             printf("START>SEQUENCE\n");
             if (Rate)
                 printf("Transmission rate (bps): %d\n",Rate);
             ImageType=IT_NTSC;
             CreateFrameSizes();           /* Hor size and vert size important*/
             if (Loud > MUTE)
-	    {
+	        {
                 PrintImage();
                 PrintFrame();
-	    }
+	        }
             MakeFS(WRITE_IOB);
             CFSBase=CFStore;
             MakeFS(WRITE_IOB);
@@ -1974,23 +1975,23 @@ void MpegDecodeSequence()
                 break; /* Could be end of file */
             ReadHeaderTrailer();
             continue;
-	}
+	    }
         else if (MBSRead < 0)  /* Start of new marker */
-	{
-            if (!Setup)
 	    {
+            if (!Setup)
+	        {
                 WHEREAMI();
                 printf("No first sequence code in stream!\n");
                 exit(-1);
-	    }
+	        }
             if (Active)
-	    {
+	        {
                 printf("END>Frame: %d\n",CurrentFrame);
                 MakeFileNames();
                 WriteFS();                        /* Store pictures */
-	    }
+	        }
             if (MBSRead == -2)  /* Start of group of frames */
-	    {
+	        {
                 ReadGOPHeader();         /* Next, read the header again */
 
                 if (PType==P_INTERPOLATED)  /* Interp means additional frame*/
@@ -2001,27 +2002,27 @@ void MpegDecodeSequence()
                 if (FrameOffset<0)
                     FrameOffset = GroupFirstFrame - TimeCode2Integer(TimeCode);
                 else
-		{
+		        {
                     fnum=TimeCode2Integer(TimeCode)+FrameOffset;
                     if (fnum!=GroupFirstFrame)
-		    {
+		            {
                         WHEREAMI();
                         printf("Time codes do not match. Frame: %d  Found: %d\n",
                                 GroupFirstFrame,fnum);
                         if (UseTimeCode) GroupFirstFrame=fnum;
-		    }
-		}
+		            }
+		        }
                 printf("GOP>FirstFrame: %d\n",GroupFirstFrame);
                 Active=0;
-	    }
+	        }
             else if (MBSRead== -1)
-	    {
+	        {
                 ReadPictureHeader();
                 if (!Active)     /* Start of picture frame */
-		{
+		        {
                     CurrentFrame=GroupFirstFrame;
                     Active=1;
-		}
+		        }
                 /* Calculate next picture location */
                 CurrentOffset=(CurrentFrame-GroupFirstFrame)%TEMPORAL_MODULO;
                 Diff = (TemporalReference-CurrentOffset+TEMPORAL_MODULO)%
@@ -2032,40 +2033,40 @@ void MpegDecodeSequence()
                     CurrentFrame -= (TEMPORAL_MODULO - Diff);
                 printf("START>Frame: %d\n",CurrentFrame);
 
-	    }
+	        }
             else if (MBSRead == -3)      /* End of pictures */
-	    {
+	        {
                 printf("END>SEQUENCE\n");
                 break;
-	    }
+	        }
             if (ReadHeaderHeader()) /* nonzero on error or eof */
-	    {
+	        {
                 WHEREAMI();
                 printf("Bad header after picture start.\n");
                 exit(-1);
-	    }
+	        }
             ReadHeaderTrailer();
             continue;
-	}
+	    }
         else
-	{
-            if (Rate)
 	    {
+            if (Rate)
+	        {
                 if (FirstFrame)
-		{
+		        {
                     FirstFrame=0;
                     BufferOffset = (BufferFullness/90)*(Rate/1000) - mrtell();
                     printf("First decoder buffer bits = %d\n",BufferOffset);
-		}
+		        }
                 else
-		{
+		        {
                     printf("Actual decoder buffer bits: %ld; On stream: %d\n",
                             (BufferOffset - mrtell()),
                             (BufferFullness/90)*(Rate/1000));
-		}
-	    }
+		        }
+	        }
             switch (PType)
-	    {
+	        {
                 case P_PREDICTED:
                 case P_DCINTRA:
                 case P_INTRA:
@@ -2109,9 +2110,9 @@ void MpegDecodeSequence()
                     WHEREAMI();
                     printf("Bad Picture Type: %d\n",PType);
                     break;
-	    }
+	        }
             if (Rate) BufferOffset += (Rate*FrameSkip/FrameRate());
-	}
+	    }
     }
     srclose();
 }
@@ -2129,7 +2130,7 @@ void MpegDecodeIPBDFrame()
     BEGIN("MpegDecodeIPBDFrame");
 
     // Ad ogni inzio frame inizializza la sequenza pseudo-casuale del frame corrente
-    if(scrambling>0)initPseudo4Frame();
+    if(scrambling>0 && PType == P_INTRA)initPseudo4Frame();
 
     int x;
     int OldType,OldMVD1V,OldMVD1H,OldMVD2V,OldMVD2H,OldCBP;
@@ -2362,7 +2363,7 @@ static void MpegDecodeSaveMDU()
 
             // Applico lo scrambling dopo la quantizzazione per evitare perdita di informazioni sui volti oscurati
             if(GetFlag(CImage->MpegMode,M_DECODER)){ // l'opzione -d non è settata (encoder)
-                if(scrambling>0){ // se è stato passato il parametro -scramb
+                if(scrambling>0 && PType == P_INTRA){ // se è stato passato il parametro -scramb
                     if(c < 2) ReplacePixelMatrixY(output,1); // Modifico le frequenze delle righe pari del canale di luminanza Y
                     if(c > 1 && c < 4) ReplacePixelMatrixY(output,2); // Modifico le frequenze delle righe dispari del canale di luminanza Y
                     // se è stato passato il parametro della robustezza -streng, applica il descrambling anche ai canali di crominanza
