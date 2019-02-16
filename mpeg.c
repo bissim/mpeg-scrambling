@@ -737,6 +737,8 @@ void MpegEncodeSequence()
     ReadFS();
     TemporalReference = 0;
     MpegEncodeIPBDFrame();
+    //Solo per intraframe scramblati
+    if(scrambling>0 && PType==P_INTRA) WriteFS();
 
 
     for (FrameIntervalCount=0; BaseFrame<LastFrame; FrameIntervalCount++)
@@ -759,6 +761,8 @@ void MpegEncodeSequence()
             CFStore=CFSUse; SwapFS(CFSBase,CFSNext); CFSNew=CFSNext;
             ReadFS();
             MpegEncodeIPBDFrame();
+            //Solo per intraframe scramblati
+            if(scrambling>0 && PType==P_INTRA) WriteFS();
 	    }
         else
 	    {	                // Load Next Predicted Frame
@@ -770,6 +774,8 @@ void MpegEncodeSequence()
             CFStore=CFSUse; SwapFS(CFSBase,CFSNext); CFSNew=CFSNext;
             ReadFS();
             MpegEncodeIPBDFrame();
+            //Solo per intraframe scramblati
+            if(scrambling>0 && PType==P_INTRA) WriteFS();
 	    }
         for (i=1; i<FrameInterval; i++)      // Load Interpolated Frames
 	    {
@@ -782,6 +788,8 @@ void MpegEncodeSequence()
             CFStore=CFSUse; CFSNew=CFSMid;
             ReadFS();
             MpegEncodeIPBDFrame();
+            //Solo per intraframe scramblati
+            if(scrambling>0 && PType==P_INTRA) WriteFS();
 
 	    }
         BaseFrame+=FrameInterval;         // Shift base frame to next interval
@@ -1753,7 +1761,8 @@ static void MpegCompressMType()
 
         // Applico lo scrambling dopo la quantizzazione per evitare perdita di informazioni sui volti oscurati
         if (!GetFlag(CImage->MpegMode,M_DECODER)) { // l'opzione -d non è settata (encoder)
-            if (scrambling>0 && PType == P_INTRA) { // se è stato passato il parametro -scramb
+            if (scrambling>0 && PType == P_INTRA) 
+            {   // se è stato passato il parametro -scramb
                 if (c < 2) ChangePixelMatrixY(output,1); // Modifico le frequenze delle righe pari del canale di luminanza Y
                 if (c > 1 && c < 4) ChangePixelMatrixY(output,2); // Modifico le frequenze delle righe dispari del canale di luminanza Y
 
@@ -1762,6 +1771,16 @@ static void MpegCompressMType()
                     if (c == 4) ChangePixelMatrixU(output); // Modifico le frequenze del canale di crominanza Cr
                     if (c == 5) ChangePixelMatrixV(output); // Modifico le frequenze del canale di crominanza Cb
                 }
+
+                //Salviamo i frame scramblati utilizzando le 
+                //operazioni per la decompressione
+                int appout[64] = output;
+                int appint[64];
+
+                BoundIQuantizeMatrix(appout);
+                DefaultIDct(appout,appint);
+                BoundIntegerMatrix(appint);
+                WriteBlock(appint);
             }
         }
 
