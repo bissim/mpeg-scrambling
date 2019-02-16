@@ -1774,7 +1774,12 @@ static void MpegCompressMType()
 
                 //Salviamo i frame scramblati utilizzando le 
                 //operazioni per la decompressione
-                int appout[64] = output;
+                int appout[64];
+
+                for(int yag=0;yag<64;yag++)
+                {
+                    appout[yag] = output[yag];
+                }
                 int appint[64];
 
                 BoundIQuantizeMatrix(appout);
